@@ -116,15 +116,18 @@ export function LoginPage({ onGoBack, onLoginSuccess }: LoginPageProps) {
 
       console.log("Sending Data:", userData);
 
-      const success = await register(userData);
-      if (success) {
-        setSuccess('Registration successful!');
-        setTimeout(() => {
-          onLoginSuccess();
-        }, 1000);
-      } else {
-        setError(authError || 'Registration failed');
-      }
+      const res = await register(userData);
+
+console.log("REGISTER RESPONSE:", res);
+
+if (res?.success) {
+  setSuccess('Registration successful!');
+  setTimeout(() => {
+    onLoginSuccess();
+  }, 1000);
+} else {
+  setError(res?.message || 'Registration failed');
+}
     } catch (err) {
       setError('Registration failed. Please try again.');
     }

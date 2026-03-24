@@ -342,9 +342,8 @@ class ApiClient {
       const response = await fetch(url, config);
 
       // Handle unauthorized responses
-      if (response.status === 401) {
-        authToken.remove();
-        throw new Error('Authentication failed. Please login again.');
+      if (response.status === 403) {
+        throw new Error('Session expired');
       }
 
       // Handle token expiration
@@ -422,7 +421,7 @@ class ApiClient {
   }
 
   async getCurrentUser(): Promise<{ success: boolean; user: User }> {
-    const response = await this.request<{ success: boolean; user: User }>('/auth/me');
+    const response = await this.request<{ success: boolean; user: User }>('/auth/profile');
 
     if (response.success) {
       authToken.setUserData(response.user);
