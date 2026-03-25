@@ -3,12 +3,19 @@ import Link from 'next/link';
 export default function AdminIndexPage() {
   const sections = [
     { id: 'dashboard', label: 'Dashboard', href: '/admin/dashboard' },
-    { id: 'menu', label: 'Menu Management', href: '/admin/menu' },
+    { id: 'users', label: 'Users', href: '/admin/users' },
+    { id: 'menu', label: 'Foods (Menu)', href: '/admin/menu' },
+    { id: 'categories', label: 'Categories', href: '/admin/category' },
     { id: 'orders', label: 'Orders', href: '/admin/orders' },
-    { id: 'events', label: 'Events', href: '/admin/events' },
-    { id: 'blog', label: 'Blog', href: '/admin/blog' },
-    { id: 'contacts', label: 'Contacts', href: '/admin/contacts' },
-    { id: 'analytics', label: 'Analytics', href: '/admin/analytics' },
+    { id: 'carts', label: 'Active Carts', href: '/admin/carts' },
+    { id: 'events', label: 'Event Bookings', href: '/admin/events' },
+    { id: 'event-types', label: 'Event Types', href: '/admin/event-types' },
+    { id: 'party-halls', label: 'Party Halls', href: '/admin/party-halls' },
+    { id: 'extra-services', label: 'Extra Services', href: '/admin/extra-services' },
+    { id: 'gallery', label: 'Gallery Management', href: '/admin/gallery' },
+    { id: 'blog', label: 'Blog Settings', href: '/admin/blog' },
+    { id: 'contacts', label: 'Messages', href: '/admin/contacts' },
+    { id: 'analytics', label: 'Reports', href: '/admin/analytics' },
   ];
 
   return (

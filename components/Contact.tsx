@@ -5,8 +5,9 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { Label } from "./ui/label";
-import { MapPin, Phone, Mail, Clock, Navigation, Send, CheckCircle } from "lucide-react";
+import { MapPin, Phone, Mail, Clock, Navigation, Send, CheckCircle, Loader2 } from "lucide-react";
 import { useState } from "react";
+import { apiClient } from "../lib/api";
 
 export function Contact() {
   const [formData, setFormData] = useState({
@@ -16,6 +17,8 @@ export function Contact() {
     message: ""
   });
 
+  const [isSending, setIsSending] = useState(false);
+
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
       ...prev,
@@ -23,11 +26,22 @@ export function Contact() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Contact form:", formData);
-    alert("Thank you! We'll get back to you soon.");
-    setFormData({ name: "", email: "", phone: "", message: "" });
+    setIsSending(true);
+    try {
+      await apiClient.sendContactMessage({
+        ...formData,
+        subject: "General Inquiry"
+      });
+      alert("Thank you! Your message has been sent successfully.");
+      setFormData({ name: "", email: "", phone: "", message: "" });
+    } catch (error) {
+      console.error(error);
+      alert("Failed to send message. Please try again later.");
+    } finally {
+      setIsSending(false);
+    }
   };
 
   const contactInfo = [
@@ -284,10 +298,20 @@ export function Contact() {
                   >
                     <Button
                       type="submit"
+                      disabled={isSending}
                       className="w-full bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 hover:from-blue-700 hover:via-purple-700 hover:to-pink-700 text-white text-lg py-6 h-auto shadow-xl"
                     >
-                      <Send className="mr-2 h-5 w-5" />
-                      Send Message
+                      {isSending ? (
+                        <>
+                          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                          Sending...
+                        </>
+                      ) : (
+                        <>
+                          <Send className="mr-2 h-5 w-5" />
+                          Send Message
+                        </>
+                      )}
                     </Button>
                   </motion.div>
                 </form>

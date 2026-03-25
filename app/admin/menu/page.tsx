@@ -101,8 +101,8 @@ export default function AdminMenusDashboard() {
     try {
       const response = await apiClient.getCategories();
       // Correctly access the nested 'categories' array from the response data
-      if (response.success && response.data && Array.isArray(response.data.categories)) {
-        setCategories(response.data.categories.filter((cat: Category) => cat.isActive));
+      if (response.success && Array.isArray(response.data)) {
+        setCategories(response.data.filter((cat: Category) => cat.isActive));
       } else {
         setCategories([]);
       }

@@ -42,7 +42,7 @@ export default function CategoriesPage() {
     try {
       const response = await apiClient.getCategories();
       // Ensure we are setting an array, even if the response is empty or malformed
-      setCategories(response.data?.data || []);
+      setCategories(response.data || []);
 
     } catch (error) {
       console.error("Failed to load categories", error);
@@ -90,9 +90,12 @@ export default function CategoriesPage() {
   };
 
   const filteredCategories = useMemo(() => categories.filter((category) => {
+    const title = category.title || (category as any).name || "";
+    const description = category.description || "";
+
     const matchesSearch =
-      category.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      category.description?.toLowerCase().includes(searchTerm.toLowerCase());
+      title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      description.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesStatus =
       statusFilter === "all" ||

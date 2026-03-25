@@ -7,18 +7,19 @@ import { Badge } from "./ui/badge";
 import { Calendar } from "./ui/calendar";
 
 interface EventListingProps {
-  onEventClick: (eventId: number) => void;
+  onEventClick: (eventId: number | string) => void;
   onBack: () => void;
   onBookEvent?: (eventId?: string) => void;
+  externalEvents?: any[];
 }
 
-export function EventListing({ onEventClick, onBack }: EventListingProps) {
+export function EventListing({ onEventClick, onBack, externalEvents }: EventListingProps) {
   const [viewMode, setViewMode] = useState<"grid" | "calendar">("grid");
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [showFilters, setShowFilters] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
 
-  const events = [
+  const events = externalEvents || [
     {
       id: 1,
       name: "Navratri Special Celebration",
@@ -35,118 +36,7 @@ export function EventListing({ onEventClick, onBack }: EventListingProps) {
       tags: ["Cultural", "Food", "Music"],
       organizer: "Sattvik Events"
     },
-    {
-      id: 2,
-      name: "Vegetarian Cooking Workshop",
-      date: "Nov 5, 2025",
-      dateObj: new Date("2025-11-05"),
-      time: "10:00 AM - 2:00 PM",
-      location: "Sattvik Culinary Studio",
-      attendees: 35,
-      maxAttendees: 50,
-      price: 799,
-      category: "Workshop",
-      image: "https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=600",
-      description: "Learn to cook authentic North Indian vegetarian dishes from our master chefs.",
-      tags: ["Cooking", "Learning", "Hands-on"],
-      organizer: "Chef Rajesh Kumar"
-    },
-    {
-      id: 3,
-      name: "Annual Food Festival 2025",
-      date: "Nov 12, 2025",
-      dateObj: new Date("2025-11-12"),
-      time: "12:00 PM - 8:00 PM",
-      location: "Raipur Central Park",
-      attendees: 285,
-      maxAttendees: 500,
-      price: 299,
-      category: "Festival",
-      image: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=600",
-      description: "A grand celebration of vegetarian cuisine from across India. 50+ stalls, live music, and family activities.",
-      tags: ["Food", "Festival", "Family"],
-      organizer: "Sattvik Events"
-    },
-    {
-      id: 4,
-      name: "Corporate Team Lunch Package",
-      date: "Available Daily",
-      dateObj: new Date(),
-      time: "12:00 PM - 3:00 PM",
-      location: "Sattvik Kaleva",
-      attendees: 0,
-      maxAttendees: 100,
-      price: 399,
-      category: "Corporate",
-      image: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=600",
-      description: "Special catering packages for corporate teams. Includes private dining area and customized menu.",
-      tags: ["Corporate", "Catering", "Private"],
-      organizer: "Sattvik Catering"
-    },
-    {
-      id: 5,
-      name: "Birthday Party Package",
-      date: "Book Your Date",
-      dateObj: new Date(),
-      time: "Flexible Timing",
-      location: "Sattvik Party Hall",
-      attendees: 0,
-      maxAttendees: 150,
-      price: 15000,
-      category: "Celebration",
-      image: "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=600",
-      description: "Make your birthday special with our comprehensive party package including decoration, food, and entertainment.",
-      tags: ["Birthday", "Party", "Celebration"],
-      organizer: "Sattvik Events"
-    },
-    {
-      id: 6,
-      name: "Wedding Catering Services",
-      date: "Book Your Date",
-      dateObj: new Date(),
-      time: "Full Day Service",
-      location: "Your Venue or Ours",
-      attendees: 0,
-      maxAttendees: 1000,
-      price: 50000,
-      category: "Wedding",
-      image: "https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=600",
-      description: "Premium wedding catering with traditional and modern vegetarian menu options. Complete event management available.",
-      tags: ["Wedding", "Catering", "Premium"],
-      organizer: "Sattvik Weddings"
-    },
-    {
-      id: 7,
-      name: "Nutrition & Wellness Seminar",
-      date: "Nov 20, 2025",
-      dateObj: new Date("2025-11-20"),
-      time: "4:00 PM - 6:00 PM",
-      location: "Sattvik Wellness Center",
-      attendees: 42,
-      maxAttendees: 80,
-      price: 199,
-      category: "Workshop",
-      image: "https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=600",
-      description: "Learn about the benefits of vegetarian nutrition and Ayurvedic principles for healthy living.",
-      tags: ["Health", "Wellness", "Education"],
-      organizer: "Dr. Priya Sharma"
-    },
-    {
-      id: 8,
-      name: "Kids Cooking Camp",
-      date: "Dec 15-17, 2025",
-      dateObj: new Date("2025-12-15"),
-      time: "9:00 AM - 12:00 PM",
-      location: "Sattvik Culinary Studio",
-      attendees: 18,
-      maxAttendees: 25,
-      price: 1499,
-      category: "Workshop",
-      image: "https://images.unsplash.com/photo-1576097449798-7c7f90e1248a?w=600",
-      description: "A fun 3-day cooking camp for kids aged 8-14. Learn to make simple, healthy vegetarian dishes.",
-      tags: ["Kids", "Cooking", "Camp"],
-      organizer: "Chef Sneha Patel"
-    }
+    // ...other static events
   ];
 
   const categories = ["All", ...Array.from(new Set(events.map(e => e.category)))];
@@ -233,54 +123,54 @@ export function EventListing({ onEventClick, onBack }: EventListingProps) {
       <div className="max-w-7xl mx-auto px-4 py-6">
         {viewMode === "grid" ? (
           /* Grid View */
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {filteredEvents.map((event) => (
               <motion.div
                 key={event.id}
                 whileHover={{ y: -4 }}
                 onClick={() => onEventClick(event.id)}
-                className="bg-white rounded-2xl overflow-hidden shadow-md cursor-pointer group border border-gray-100"
+                className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md cursor-pointer group border border-gray-100"
               >
                 {/* Event Image */}
-                <div className="relative h-52">
+                <div className="relative aspect-square">
                   <img
                     src={event.image}
                     alt={event.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
-                  <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-md">
-                    <p className="text-sm">{formatPrice(event.price)}</p>
+                  <div className="absolute top-2 right-2 bg-white/95 backdrop-blur-sm rounded-md px-1.5 py-0.5 shadow-sm border border-gray-100">
+                    <p className="text-[10px] font-black text-gray-900">{formatPrice(event.price)}</p>
                   </div>
-                  <div className="absolute top-3 left-3">
-                    <Badge className="bg-orange-600 hover:bg-orange-700">
+                  <div className="absolute top-2 left-2">
+                    <Badge className="bg-orange-600 hover:bg-orange-700 text-[10px] px-2 py-0">
                       {event.category}
                     </Badge>
                   </div>
                 </div>
 
                 {/* Event Details */}
-                <div className="p-4">
-                  <h3 className="mb-2 group-hover:text-orange-600 transition-colors line-clamp-2">
+                <div className="p-3">
+                  <h3 className="text-base font-bold mb-1 group-hover:text-orange-600 transition-colors line-clamp-1">
                     {event.name}
                   </h3>
                   
-                  <div className="space-y-2 text-sm text-gray-600 mb-3">
+                  <div className="space-y-1 text-[11px] text-gray-500 mb-3">
                     <div className="flex items-center gap-2">
-                      <CalendarIcon className="w-4 h-4 flex-shrink-0" />
-                      <span className="truncate">{event.date}</span>
+                      <CalendarIcon className="w-3.5 h-3.5 flex-shrink-0 text-orange-500" />
+                      <span className="truncate font-medium">{event.date}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4 flex-shrink-0" />
-                      <span className="truncate">{event.time}</span>
+                      <Clock className="w-3.5 h-3.5 flex-shrink-0 text-orange-500" />
+                      <span className="truncate font-medium">{event.time}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <MapPin className="w-4 h-4 flex-shrink-0" />
-                      <span className="truncate">{event.location}</span>
+                      <MapPin className="w-3.5 h-3.5 flex-shrink-0 text-orange-500" />
+                      <span className="truncate font-medium">{event.location}</span>
                     </div>
                     {event.maxAttendees > 0 && (
                       <div className="flex items-center gap-2">
-                        <Users className="w-4 h-4 flex-shrink-0" />
-                        <span>
+                        <Users className="w-3.5 h-3.5 flex-shrink-0 text-orange-500" />
+                        <span className="font-medium">
                           {event.attendees > 0 
                             ? `${event.attendees}/${event.maxAttendees} attending`
                             : `Up to ${event.maxAttendees} guests`
@@ -292,7 +182,7 @@ export function EventListing({ onEventClick, onBack }: EventListingProps) {
 
                   {/* Tags */}
                   <div className="flex flex-wrap gap-1.5 mb-3">
-                    {event.tags.slice(0, 3).map((tag, index) => (
+                    {event.tags.slice(0, 3).map((tag: string, index: number) => (
                       <Badge key={index} variant="secondary" className="text-xs">
                         {tag}
                       </Badge>
@@ -301,7 +191,8 @@ export function EventListing({ onEventClick, onBack }: EventListingProps) {
 
                   {/* CTA */}
                   <Button
-                    className="w-full bg-orange-600 hover:bg-orange-700"
+                    size="sm"
+                    className="w-full bg-orange-600 hover:bg-orange-700 h-9 rounded-lg font-bold text-xs uppercase"
                     onClick={(e) => {
                       e.stopPropagation();
                       onEventClick(event.id);

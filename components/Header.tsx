@@ -2,7 +2,7 @@
 
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
-import { Menu, Phone, ShoppingCart, User, Lock, LayoutDashboard } from "lucide-react";
+import { Menu, Phone, ShoppingCart, User, Lock, LayoutDashboard, LogOut } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -90,8 +90,8 @@ export function Header({
                   onClick={onDashboardClick}
                   className="flex items-center space-x-2 border-orange-600 text-orange-600 hover:bg-orange-50"
                 >
-                  <LayoutDashboard className="h-4 w-4" />
-                  <span>Dashboard</span>
+                  <User className="h-4 w-4" />
+                  <span>{username || "Profile"}</span>
                 </Button>
           
                 {isAdmin && (
@@ -105,6 +105,16 @@ export function Header({
                     <span>Admin</span>
                   </Button>
                 )}
+
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={onLogoutClick}
+                  className="flex items-center space-x-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span className="hidden xl:inline">Logout</span>
+                </Button>
               </div>
             ) : (
               <Button
@@ -194,8 +204,8 @@ export function Header({
                     onClick={onDashboardClick}
                     className="flex items-center space-x-2 w-fit border-orange-600 text-orange-600 hover:bg-orange-50"
                   >
-                    <LayoutDashboard className="h-4 w-4" />
-                    <span>Dashboard</span>
+                    <User className="h-4 w-4" />
+                    <span>{username || "Profile"}</span>
                   </Button>
                   
                   {isAdmin && (
@@ -209,6 +219,16 @@ export function Header({
                       <span>Admin</span>
                     </Button>
                   )}
+
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={onLogoutClick}
+                    className="flex items-center space-x-2 w-fit text-red-600 hover:text-red-700 hover:bg-red-50"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    <span>Logout</span>
+                  </Button>
                 </div>
               ) : (
                 <Button

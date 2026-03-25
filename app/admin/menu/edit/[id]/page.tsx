@@ -9,7 +9,7 @@ import { Textarea } from "../../../../../components/ui/textarea";
 import { Label } from "../../../../../components/ui/label";
 import { Switch } from "../../../../../components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../../../components/ui/select";
-import { ArrowLeft, Loader2, X, IndianRupee } from "lucide-react";
+import { ArrowLeft, Loader2, X, IndianRupee, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { apiClient } from "../../../../../lib/api";
@@ -82,13 +82,13 @@ export default function EditMenuPage() {
       ]);
       console.log(categoriesResponse);
       
-      const menu = menuResponse.menu;
+      const menu = menuResponse.data;
 
-      setTitle(menu.title);
+      setTitle(menu.title || menu.name || "");
       setDescription(menu.description || "");
       setPrice(String(menu.price || ""));
       setDiscountedPrice(String(menu.discountedPrice || ""));
-      setCategoryId(menu.category?._id || "");
+      setCategoryId(menu.category?._id || menu.category || "");
       setIsVeg(menu.isVeg ?? true);
       setIsAvailable(menu.isAvailable ?? true);
       
@@ -98,10 +98,10 @@ export default function EditMenuPage() {
 
       setInitialMenu(menu);
 
-      // Correctly access the nested categories array
+      // Correctly access the categories array
       if (categoriesResponse.success && Array.isArray(categoriesResponse.data)) {
         const allCategories = categoriesResponse.data;
-        const currentCategoryId = menu.category?._id;
+        const currentCategoryId = typeof menu.category === 'string' ? menu.category : menu.category?._id;
 
         // Show active categories, plus the current one if it's inactive
         const categoriesToShow = allCategories.filter((cat: any) => 
@@ -216,6 +216,25 @@ export default function EditMenuPage() {
     } catch (error: any) {
       console.error("Failed to update menu item:", error);
       toast.error(error.response?.data?.message || "Failed to update menu item. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!id) return;
+    if (!confirm(`Are you sure you want to delete "${title}"? This action cannot be undone.`)) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await apiClient.deleteMenu(id);
+      toast.success("Menu item deleted successfully");
+      router.push("/admin/menu");
+    } catch (error) {
+      console.error("Failed to delete menu item:", error);
+      toast.error("Failed to delete menu item. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -402,22 +421,35 @@ export default function EditMenuPage() {
               </div>
             </div> */}
           </CardContent>
-          <CardFooter className="flex gap-4">
+          <CardFooter className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-1 gap-4 w-full">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => router.push("/admin/menu")}
+                className="flex-1"
+                disabled={isSubmitting}
+              >
+                Cancel
+              </Button>
+              <Button 
+                type="submit" 
+                disabled={isSubmitting} 
+                className="flex-1 bg-orange-600 hover:bg-orange-700 font-semibold"
+              >
+                {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Save Changes"}
+              </Button>
+            </div>
+            
             <Button
               type="button"
-              variant="outline"
-              onClick={() => router.push("/admin/menu")}
-              className="flex-1"
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={isSubmitting}
+              className="w-full sm:w-auto px-6 py-2 transition-all hover:bg-red-700 flex items-center justify-center gap-2"
             >
-              Cancel
-            </Button>
-            <Button 
-              type="submit" 
-              disabled={isSubmitting} 
-              className="flex-1 bg-orange-600 hover:bg-orange-700"
-            >
-              {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Save Changes
+              <Trash2 className="h-4 w-4" />
+              Delete Food
             </Button>
           </CardFooter>
         </Card>

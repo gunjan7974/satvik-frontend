@@ -60,15 +60,15 @@ export function LoginPage({ onGoBack, onLoginSuccess }: LoginPageProps) {
     }
 
     try {
-      const success = await login(loginForm.email, loginForm.password);
+      const res = await login(loginForm.email, loginForm.password);
       console.log("Login function called");
-      if (success) {
+      if (res?.success) {
         setSuccess('Login successful!');
         setTimeout(() => {
           onLoginSuccess();
         }, 1000);
       } else {
-        setError(authError || 'Invalid email or password');
+        setError(res?.message || authError || 'Invalid email or password');
       }
     } catch (err) {
       setError('Login failed. Please try again.');
@@ -118,16 +118,16 @@ export function LoginPage({ onGoBack, onLoginSuccess }: LoginPageProps) {
 
       const res = await register(userData);
 
-console.log("REGISTER RESPONSE:", res);
+      console.log("REGISTER RESPONSE:", res);
 
-if (res?.success) {
-  setSuccess('Registration successful!');
-  setTimeout(() => {
-    onLoginSuccess();
-  }, 1000);
-} else {
-  setError(res?.message || 'Registration failed');
-}
+      if (res?.success) {
+        setSuccess('Registration successful!');
+        setTimeout(() => {
+          onLoginSuccess();
+        }, 1000);
+      } else {
+        setError(res?.message || 'Registration failed');
+      }
     } catch (err) {
       setError('Registration failed. Please try again.');
     }

@@ -203,15 +203,24 @@ export function Blog({ blogPosts, onGoBack }: BlogProps) {
               <h1 className="mb-4">{selectedPost.title}</h1>
               
               {selectedPost.type === 'video' && selectedPost.mediaUrl && (
-                <div className="mb-6">
-                  <iframe
-                    width="100%"
-                    height="400"
-                    src={selectedPost.mediaUrl}
-                    title={selectedPost.title}
-                    className="rounded-lg"
-                    allowFullScreen
-                  />
+                <div className="mb-6 rounded-lg overflow-hidden border bg-black shadow-lg">
+                  {selectedPost.mediaUrl.includes('youtube') || selectedPost.mediaUrl.includes('youtu.be') ? (
+                    <iframe
+                      width="100%"
+                      height="450"
+                      src={selectedPost.mediaUrl}
+                      title={selectedPost.title}
+                      className="w-full"
+                      allowFullScreen
+                    />
+                  ) : (
+                    <video 
+                      src={selectedPost.mediaUrl} 
+                      controls 
+                      className="w-full max-h-[500px]"
+                      poster={selectedPost.image}
+                    />
+                  )}
                 </div>
               )}
               

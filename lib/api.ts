@@ -193,6 +193,87 @@ export interface InventoryItem {
   createdAt?: string;
 }
 
+export interface EventType {
+  _id: string;
+  name: string;
+  basePrice: number;
+  image?: string;
+}
+
+export interface PartyHall {
+  _id: string;
+  name: string;
+  capacity: number;
+  pricePerPlate: number;
+  isAvailable: boolean;
+  image?: string;
+}
+
+export interface ExtraService {
+  _id: string;
+  name: string;
+  price: number;
+  unit?: 'fixed' | 'per_guest' | 'per_hour';
+  image?: string;
+}
+
+export interface BlogPost {
+  _id: string;
+  id?: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  author: string;
+  category: string;
+  image: string;
+  videoUrl?: string;
+  featured: boolean;
+  type: 'article' | 'video' | 'photo';
+  mediaUrl?: string;
+  date?: string;
+  createdAt?: string;
+  views: number;
+}
+
+export interface ContactMessage {
+  _id: string;
+  name: string;
+  email: string;
+  phone: string;
+  subject?: string;
+  message: string;
+  status: 'new' | 'replied' | 'closed';
+  createdAt?: string;
+}
+
+export interface PartyHall {
+  _id: string;
+  name: string;
+  description: string;
+  capacity: number;
+  price: number;
+  image?: string;
+}
+
+export interface ExtraService {
+  _id: string;
+  name: string;
+  description: string;
+  price: number;
+  image?: string;
+}
+
+
+
+export interface GalleryItem {
+  _id: string;
+  title: string;
+  image: string;
+  category: 'Food' | 'Events' | 'Interior' | 'Celebrations' | 'Other';
+  description?: string;
+  featured: boolean;
+  createdAt?: string;
+}
 
 // ==================== JWT HELPER ====================
 
@@ -312,7 +393,7 @@ class ApiClient {
     return authToken.get();
   }
 
-  private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  public async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
     let token = this.getAuthToken();
 
@@ -324,9 +405,12 @@ class ApiClient {
     }
 
     const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
       ...options.headers as Record<string, string>,
     };
+
+    if (!(options.body instanceof FormData)) {
+      headers['Content-Type'] = 'application/json';
+    }
 
     // Add auth token if available
     if (token) {
@@ -552,16 +636,16 @@ class ApiClient {
 
   async getMenus(params?: PaginationParams & { category?: string; vendorId?: string; isAvailable?: boolean }) {
     const queryString = this.buildQueryString(params);
-    return this.request<ApiResponse<Menu[]>>(`/menus${queryString}`);
+    return this.request<ApiResponse<Menu[]>>(`/foods${queryString}`);
   }
 
   async getMenuById(id: string) {
-    return this.request<ApiResponse<Menu>>(`/menus/${id}`);
+    return this.request<ApiResponse<Menu>>(`/foods/${id}`);
   }
 
   async createMenu(menuData: FormData | Omit<Menu, '_id' | 'id' | 'createdAt' | 'updatedAt'>) {
     if (menuData instanceof FormData) {
-      const url = `${this.baseUrl}/menus`;
+      const url = `${this.baseUrl}/foods`;
       const token = this.getAuthToken();
       const headers: any = {};
       if (token) headers['Authorization'] = `Bearer ${token}`;
@@ -582,7 +666,7 @@ class ApiClient {
       return data;
     }
 
-    return this.request<ApiResponse<Menu>>('/menus', {
+    return this.request<ApiResponse<Menu>>('/foods', {
       method: 'POST',
       body: JSON.stringify(menuData)
     });
@@ -590,7 +674,7 @@ class ApiClient {
 
   async updateMenu(id: string, menuData: FormData | Partial<Menu>) {
     if (menuData instanceof FormData) {
-      const url = `${this.baseUrl}/menus/${id}`;
+      const url = `${this.baseUrl}/foods/${id}`;
       const token = this.getAuthToken();
       const headers: any = {};
       if (token) headers['Authorization'] = `Bearer ${token}`;
@@ -611,20 +695,20 @@ class ApiClient {
       return data;
     }
 
-    return this.request<ApiResponse<Menu>>(`/menus/${id}`, {
+    return this.request<ApiResponse<Menu>>(`/foods/${id}`, {
       method: 'PUT',
       body: JSON.stringify(menuData)
     });
   }
 
   async deleteMenu(id: string) {
-    return this.request<ApiResponse>(`/menus/${id}`, {
+    return this.request<ApiResponse>(`/foods/${id}`, {
       method: 'DELETE'
     });
   }
 
   async toggleMenuAvailability(id: string) {
-    return this.request<ApiResponse<Menu>>(`/menus/${id}/availability`, {
+    return this.request<ApiResponse<Menu>>(`/foods/${id}/availability`, {
       method: 'PATCH',
     });
   }
@@ -918,6 +1002,10 @@ class ApiClient {
     });
   }
 
+  async getOrder(id: string) {
+    return this.request<ApiResponse<Order>>(`/orders/${id}`);
+  }
+
   async updateOrderStatus(id: string, status: string) {
     return this.request<ApiResponse<Order>>(`/orders/${id}/status`, {
       method: 'PATCH',
@@ -1116,6 +1204,160 @@ class ApiClient {
     const data = await res.json();
     if (!res.ok) throw new Error(data.message || 'Failed to upload file');
     return data;
+  }
+
+  // ==================== ADMIN SPECIFIC APIs ====================
+
+  async getAllCarts(): Promise<Cart[]> {
+    return this.request<Cart[]>('/cart/all');
+  }
+
+  async getEventTypes(): Promise<EventType[]> {
+    return this.request<EventType[]>('/events/types');
+  }
+
+  async createEventType(data: { name: string; basePrice: number }): Promise<EventType> {
+    return this.request<EventType>('/events/types', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  }
+
+  async deleteEventType(id: string): Promise<{ message: string }> {
+    return this.request<{ message: string }>(`/events/types/${id}`, {
+      method: 'DELETE'
+    });
+  }
+
+  async getPartyHalls(): Promise<PartyHall[]> {
+    return this.request<PartyHall[]>('/events/halls');
+  }
+
+  async createPartyHall(data: Omit<PartyHall, '_id'>): Promise<PartyHall> {
+    return this.request<PartyHall>('/events/halls', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  }
+
+  async deletePartyHall(id: string): Promise<{ message: string }> {
+    return this.request<{ message: string }>(`/events/halls/${id}`, {
+      method: 'DELETE'
+    });
+  }
+
+  async getExtraServices(): Promise<ExtraService[]> {
+    return this.request<ExtraService[]>('/events/services');
+  }
+
+  async createExtraService(data: Omit<ExtraService, '_id'>): Promise<ExtraService> {
+    return this.request<ExtraService>('/events/services', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  }
+
+  async deleteExtraService(id: string): Promise<{ message: string }> {
+    return this.request<{ message: string }>(`/events/services/${id}`, {
+      method: 'DELETE'
+    });
+  }
+
+  // 🥂 EVENT BOOKINGS
+  async getEventBookings(): Promise<any[]> {
+    return this.request<any[]>('/events');
+  }
+
+  async createEventBooking(data: any): Promise<any> {
+    return this.request<any>('/events', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  }
+
+  async deleteEventBooking(id: string): Promise<any> {
+    return this.request<any>(`/events/${id}`, {
+      method: 'DELETE'
+    });
+  }
+
+  async updateEventBookingStatus(id: string, status: string): Promise<any> {
+    return this.request<any>(`/events/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status })
+    });
+  }
+
+  // 📝 BLOG APIs
+  async getBlogs(): Promise<BlogPost[]> {
+    return this.request<BlogPost[]>('/blogs');
+  }
+
+  async getBlogById(id: string): Promise<BlogPost> {
+    return this.request<BlogPost>(`/blogs/${id}`);
+  }
+
+  async createBlog(blogData: FormData): Promise<BlogPost> {
+    return this.request<BlogPost>('/blogs', {
+      method: 'POST',
+      body: blogData
+    });
+  }
+
+  async updateBlog(id: string, blogData: FormData): Promise<BlogPost> {
+    return this.request<BlogPost>(`/blogs/${id}`, {
+      method: 'PUT',
+      body: blogData
+    });
+  }
+
+  async deleteBlog(id: string): Promise<{ message: string }> {
+    return this.request<{ message: string }>(`/blogs/${id}`, {
+      method: 'DELETE'
+    });
+  }
+
+  // 📧 CONTACT APIs
+  async getContacts(): Promise<ContactMessage[]> {
+    return this.request<ContactMessage[]>('/contacts');
+  }
+
+  async sendContactMessage(data: Omit<ContactMessage, '_id' | 'status' | 'createdAt'>): Promise<ContactMessage> {
+    return this.request<ContactMessage>('/contacts', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  }
+
+  async updateContactStatus(id: string, status: ContactMessage['status']): Promise<ContactMessage> {
+    return this.request<ContactMessage>(`/contacts/${id}/status`, {
+      method: 'PUT',
+      body: JSON.stringify({ status })
+    });
+  }
+
+  async deleteContact(id: string): Promise<{ message: string }> {
+    return this.request<{ message: string }>(`/contacts/${id}`, {
+      method: 'DELETE'
+    });
+  }
+
+  // 🖼️ GALLERY APIs
+  async getGallery(): Promise<GalleryItem[]> {
+    return this.request<GalleryItem[]>('/gallery');
+  }
+
+  async createGallery(data: FormData): Promise<GalleryItem> {
+    return this.request<GalleryItem>('/gallery', {
+      method: 'POST',
+      body: data
+    });
+  }
+
+  async deleteGallery(id: string): Promise<{ message: string }> {
+    return this.request<{ message: string }>(`/gallery/${id}`, {
+      method: 'DELETE'
+    });
   }
 }
 

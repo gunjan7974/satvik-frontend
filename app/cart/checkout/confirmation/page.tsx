@@ -97,8 +97,8 @@ export default function OrderConfirmationPage() {
   }, [isAuthenticated, router]);
 
   const handleViewOrders = () => {
-    localStorage.removeItem('completedOrder');
-    router.push('/orders');
+    // Keep the order in localStorage until they finish tracking
+    router.push('/cart/checkout/confirmation/success/tracking');
   };
 
   const handleContinueShopping = () => {

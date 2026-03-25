@@ -28,37 +28,15 @@ import {
   RefreshCw,
   Eye,
   EyeOff,
-  CheckCircle2,
-  XCircle,
-  User,
-  Shield,
-  Store,
-  Mail,
-  Calendar,
+  User as UserIcon,
   Trash2,
   Edit,
-  Users,
+  Loader2
 } from "lucide-react";
 import { toast } from "react-hot-toast";
-
-interface User {
-  _id: string;
-  name: string;
-  email: string;
-  role: 'user' | 'admin' | 'vendor';
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-  vendorInfo?: {
-    businessName?: string;
-    businessAddress?: string;
-    phone?: string;
-    description?: string;
-  };
-}
+import { apiClient, User } from "../../../lib/api";
 
 export default function UsersPage() {
-  const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -72,95 +50,75 @@ export default function UsersPage() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [selectedRole, setSelectedRole] = useState<'user' | 'admin' | 'vendor'>('user');
 
-  // Default static data
-  const defaultUsers: User[] = [
-    {
-      _id: "1",
-      name: "John Doe",
-      email: "john@example.com",
-      role: "admin",
-      isActive: true,
-      createdAt: "2024-10-01T12:00:00Z",
-      updatedAt: "2024-10-01T12:00:00Z",
-    },
-    {
-      _id: "2",
-      name: "Alice Vendor",
-      email: "alice@vendor.com",
-      role: "vendor",
-      isActive: true,
-      createdAt: "2024-10-10T12:00:00Z",
-      updatedAt: "2024-10-10T12:00:00Z",
-      vendorInfo: {
-        businessName: "Alice’s Boutique",
-        phone: "9876543210",
-      },
-    },
-    {
-      _id: "3",
-      name: "Bob Customer",
-      email: "bob@customer.com",
-      role: "user",
-      isActive: false,
-      createdAt: "2024-11-01T12:00:00Z",
-      updatedAt: "2024-11-01T12:00:00Z",
-    },
-  ];
-
-  // Load static data
-  useEffect(() => {
-    setTimeout(() => {
-      setUsers(defaultUsers);
+  const loadUsers = async () => {
+    try {
+      setRefreshing(true);
+      const response = await apiClient.adminGetAllUsers();
+      if (response.success && response.data) {
+        setUsers(response.data);
+      }
+    } catch (error) {
+       console.error("Failed to load users", error);
+       toast.error("Failed to load users");
+    } finally {
       setLoading(false);
-    }, 500);
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    loadUsers();
   }, []);
 
-  const handleRefresh = async () => {
-    setRefreshing(true);
-    toast.success("User list refreshed");
-    setUsers([...defaultUsers]);
-    setRefreshing(false);
-  };
-
-  const handleDeleteUser = () => {
+  const handleDeleteUser = async () => {
     if (!selectedUser) return;
-    setUsers((prev) => prev.filter((u) => u._id !== selectedUser._id));
-    toast.success(`User "${selectedUser.name}" deleted`);
-    setDeleteDialogOpen(false);
+    try {
+      await apiClient.adminDeleteUser(selectedUser._id);
+      setUsers((prev) => prev.filter((u) => u._id !== selectedUser._id));
+      toast.success(`User "${selectedUser.name}" deleted`);
+      setDeleteDialogOpen(false);
+    } catch (error) {
+      toast.error("Failed to delete user");
+    }
   };
 
-  const handleToggleStatus = (user: User) => {
-    setUsers((prev) =>
-      prev.map((u) =>
-        u._id === user._id ? { ...u, isActive: !u.isActive } : u
-      )
-    );
-    toast.success(
-      `User "${user.name}" ${
-        user.isActive ? "deactivated" : "activated"
-      } successfully`
-    );
+  const handleToggleStatus = async (user: User) => {
+    try {
+      await apiClient.adminToggleUserStatus(user._id);
+      setUsers((prev) =>
+        prev.map((u) =>
+          u._id === user._id ? { ...u, isActive: !u.isActive } : u
+        )
+      );
+      toast.success(
+        `User "${user.name}" status updated`
+      );
+    } catch (error) {
+      toast.error("Failed to update status");
+    }
   };
 
-  const handleRoleChange = () => {
+  const handleRoleChange = async () => {
     if (!selectedUser) return;
-    setUsers((prev) =>
-      prev.map((u) =>
-        u._id === selectedUser._id ? { ...u, role: selectedRole } : u
-      )
-    );
-    toast.success(`Role updated to ${selectedRole} for "${selectedUser.name}"`);
-    setRoleDialogOpen(false);
+    try {
+      await apiClient.adminUpdateUserRole(selectedUser._id, selectedRole);
+      setUsers((prev) =>
+        prev.map((u) =>
+          u._id === selectedUser._id ? { ...u, role: selectedRole } : u
+        )
+      );
+      toast.success(`Role updated to ${selectedRole} for "${selectedUser.name}"`);
+      setRoleDialogOpen(false);
+    } catch (error) {
+      toast.error("Failed to update role");
+    }
   };
 
   // Filters
   const filteredUsers = users.filter((user) => {
     const matchesSearch =
       user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.vendorInfo?.businessName
-        ?.toLowerCase()
-        .includes(searchTerm.toLowerCase());
+      user.email.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesRole = roleFilter === "all" || user.role === roleFilter;
     const matchesStatus =
@@ -170,16 +128,6 @@ export default function UsersPage() {
 
     return matchesSearch && matchesRole && matchesStatus;
   });
-
-  // Stats
-  const userStats = {
-    total: users.length,
-    active: users.filter((u) => u.isActive).length,
-    inactive: users.filter((u) => !u.isActive).length,
-    admins: users.filter((u) => u.role === "admin").length,
-    vendors: users.filter((u) => u.role === "vendor").length,
-    customers: users.filter((u) => u.role === "user").length,
-  };
 
   const getRoleColor = (role: string) => {
     switch (role) {
@@ -200,16 +148,13 @@ export default function UsersPage() {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-96">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading users...</p>
-        </div>
+        <Loader2 className="animate-spin h-10 w-10 text-orange-600" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6">
       {/* Delete Confirmation */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
@@ -271,25 +216,13 @@ export default function UsersPage() {
 
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">User Management (Static)</h1>
-        <Button onClick={handleRefresh} disabled={refreshing} variant="outline">
+        <h1 className="text-2xl font-bold">User Management</h1>
+        <Button onClick={loadUsers} disabled={refreshing} variant="outline">
           <RefreshCw
             className={`h-4 w-4 mr-2 ${refreshing ? "animate-spin" : ""}`}
           />
           Refresh
         </Button>
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-        {Object.entries(userStats).map(([key, value]) => (
-          <Card key={key}>
-            <CardContent className="p-4 text-center">
-              <p className="text-sm text-gray-600 capitalize">{key}</p>
-              <p className="text-2xl font-bold">{value}</p>
-            </CardContent>
-          </Card>
-        ))}
       </div>
 
       {/* Search and Filters */}

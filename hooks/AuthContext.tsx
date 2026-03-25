@@ -8,8 +8,8 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   error: string | null;
-  login: (email: string, password: string) => Promise<boolean>;
-  register: (userData: RegisterData) => Promise<boolean>;
+  login: (email: string, password: string) => Promise<any>;
+  register: (userData: RegisterData) => Promise<any>;
   logout: () => void;
   isAuthenticated: boolean;
   clearError: () => void;
@@ -50,7 +50,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const login = async (email: string, password: string): Promise<any> => {
     try {
       setError(null);
       setLoading(true);
@@ -61,18 +61,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (response.success && response.token) {
         localStorage.setItem('auth_token', response.token);
         setUser(response.user);
-        return true;
+        return response;
       }
-      return false;
+      return response;
     } catch (error: any) {
       setError(error.message || 'Login failed');
-      return false;
+      return { success: false, message: error.message || 'Login failed' };
     } finally {
       setLoading(false);
     }
   };
 
-  const register = async (userData: RegisterData): Promise<boolean> => {
+  const register = async (userData: RegisterData): Promise<any> => {
     try {
       setError(null);
       setLoading(true);
@@ -82,12 +82,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (response.success && response.token) {
         localStorage.setItem('auth_token', response.token);
         setUser(response.user);
-        return true;
+        return response;
       }
-      return false;
+      return response;
     } catch (error: any) {
       setError(error.message || 'Registration failed');
-      return false;
+      return { success: false, message: error.message || 'Registration failed' };
     } finally {
       setLoading(false);
     }

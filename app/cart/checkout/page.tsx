@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import type { CartItem } from "@/types/cart";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { apiClient } from "@/lib/api";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -65,7 +66,7 @@ export default function CheckoutPage() {
 
     try {
       setIsPlacingOrder(true);
-
+      
       const completeOrderData = {
         customer: {
           name: orderData.name || user?.name || "Guest User",
@@ -84,19 +85,25 @@ export default function CheckoutPage() {
               : {},
         },
         items: cartItems.map((item) => ({
-          menu: item.id,
+          menu: String(item.id),
           title: item.name,
           price: item.price,
           quantity: item.quantity,
-          // subtotal: item.subtotal,
+          subtotal: item.price * item.quantity,
         })),
-        total: cartTotal,
-        status: "confirmed",
+        total: cartItems.reduce((acc, current) => acc + (current.price * current.quantity), 0),
+        status: "placed",
         paymentMethod: orderData.paymentMethod || "cod",
       };
 
-      localStorage.setItem("completedOrder", JSON.stringify(completeOrderData));
-      router.push("/cart/checkout/confirmation");
+      const response = await apiClient.createOrder(completeOrderData);
+      
+      if (response.success && response.data) {
+        localStorage.setItem("completedOrder", JSON.stringify(response.data));
+        router.push("/cart/checkout/confirmation");
+      } else {
+        throw new Error(response.message || "Failed to place order");
+      }
     } catch (error) {
       console.error("Error placing order:", error);
       alert("Something went wrong. Please try again.");

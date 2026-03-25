@@ -6,7 +6,8 @@ import { usePathname } from 'next/navigation';
 import { 
   Monitor, Coffee, Package, Calendar, BookOpen, 
   MessageSquare, BarChart3, ChevronLeft, ChevronRight,
-  ChevronDown, Plus, List, Users, Tag, X, Warehouse
+  ChevronDown, Plus, List, Users, Tag, X, Warehouse, ShoppingCart, Sparkles, Heart, Star,
+  PartyPopper, Building2, Image as ImageIcon
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { useState, useEffect } from 'react';
@@ -33,33 +34,57 @@ interface SidebarProps {
 const sidebarItems: SidebarItem[] = [
   { 
     id: 'dashboard', 
-    label: 'Dashboard', 
+    label: 'Overview', 
     icon: Monitor, 
     color: 'text-blue-600', 
     path: '/admin' 
   },
   { 
-    id: 'menu', 
-    label: 'Menu Management', 
+    id: 'users', 
+    label: 'Users', 
+    icon: Users, 
+    color: 'text-indigo-600', 
+    path: '/admin/users',
+    hasDropdown: true,
+    dropdownItems: [
+      { label: 'All Users', path: '/admin/users', icon: List },
+      { label: 'Add User', path: '/admin/users/add', icon: Plus },
+    ]
+  },
+  { 
+    id: 'foods', 
+    label: 'Foods (Menu)', 
     icon: Coffee, 
     color: 'text-green-600', 
     path: '/admin/menu',
     hasDropdown: true,
     dropdownItems: [
-      { label: 'Add Menu Item', path: '/admin/menu/add', icon: Plus },
-      { label: 'View All Items', path: '/admin/menu', icon: List },
+      { label: 'View All Dishes', path: '/admin/menu', icon: List },
+      { label: 'Add New Food', path: '/admin/menu/add', icon: Plus },
     ]
   },
   { 
-    id: 'category', 
+    id: 'categories', 
     label: 'Categories', 
     icon: Tag, 
     color: 'text-teal-600', 
     path: '/admin/category',
     hasDropdown: true,
     dropdownItems: [
+      { label: 'All Categories', path: '/admin/category', icon: List },
       { label: 'Add Category', path: '/admin/category/add', icon: Plus },
-      { label: 'View All Categories', path: '/admin/category', icon: List },
+    ]
+  },
+  { 
+    id: 'gallery', 
+    label: 'Gallery Management', 
+    icon: ImageIcon, 
+    color: 'text-indigo-500', 
+    path: '/admin/gallery',
+    hasDropdown: true,
+    dropdownItems: [
+      { label: 'View Gallery', path: '/admin/gallery', icon: List },
+      { label: 'Add New Photo', path: '/admin/gallery/add', icon: Plus },
     ]
   },
   { 
@@ -75,73 +100,82 @@ const sidebarItems: SidebarItem[] = [
     ]
   },
   { 
-    id: 'inventory', 
-    label: 'Inventory', 
-    icon: Warehouse,
+    id: 'carts', 
+    label: 'Active Carts', 
+    icon: ShoppingCart, 
     color: 'text-yellow-600', 
-    path: '/admin/inventory',
-    hasDropdown: true,
-    dropdownItems: [
-      { label: 'View Inventory', path: '/admin/inventory', icon: List },
-      { label: 'Add Item', path: '/admin/inventory/add', icon: Plus },
-    ]
+    path: '/admin/carts' 
   },
   { 
-    id: 'users', 
-    label: 'Users', 
-    icon: Users, 
-    color: 'text-indigo-600', 
-    path: '/admin/users',
-    hasDropdown: true,
-    dropdownItems: [
-      { label: 'Add User', path: '/admin/users/add', icon: Plus },
-      { label: 'All Users', path: '/admin/users', icon: List },
-      { label: 'Customers', path: '/admin/users/customers', icon: Users },
-      { label: 'Admins', path: '/admin/users/admins', icon: Users },
-    ]
-  },
-  { 
-    id: 'events', 
+    id: 'eventbookings', 
     label: 'Event Bookings', 
     icon: Calendar, 
     color: 'text-purple-600', 
     path: '/admin/events',
     hasDropdown: true,
     dropdownItems: [
-      { label: 'New Booking', path: '/admin/events/add', icon: Plus },
-      { label: 'All Bookings', path: '/admin/events', icon: List },
-      { label: 'Calendar View', path: '/admin/events/calendar', icon: List }
+      { label: 'View Events', path: '/admin/events', icon: List },
+      { label: 'Add Event', path: '/admin/events/add', icon: Plus },
+    ]
+  },
+  { 
+    id: 'eventtypes', 
+    label: 'Event Types', 
+    icon: Tag, 
+    color: 'text-pink-600', 
+    path: '/admin/event-types',
+    hasDropdown: true,
+    dropdownItems: [
+      { label: 'View All Types', path: '/admin/event-types', icon: List },
+      { label: 'Add New Type', path: '/admin/event-types/add', icon: Plus },
+    ]
+  },
+  { 
+    id: 'partyhalls', 
+    label: 'Party Halls', 
+    icon: Warehouse, 
+    color: 'text-blue-500', 
+    path: '/admin/party-halls',
+    hasDropdown: true,
+    dropdownItems: [
+      { label: 'View All Halls', path: '/admin/party-halls', icon: List },
+      { label: 'Register New Hall', path: '/admin/party-halls/add', icon: Plus },
+    ]
+  },
+  { 
+    id: 'extraservices', 
+    label: 'Extra Services', 
+    icon: Sparkles, 
+    color: 'text-cyan-600', 
+    path: '/admin/extra-services',
+    hasDropdown: true,
+    dropdownItems: [
+      { label: 'View All Services', path: '/admin/extra-services', icon: List },
+      { label: 'Add New Service', path: '/admin/extra-services/add', icon: Plus },
     ]
   },
   { 
     id: 'blog', 
     label: 'Blog Posts', 
     icon: BookOpen, 
-    color: 'text-pink-600', 
+    color: 'text-pink-100', // Adjusted to match premium feel
     path: '/admin/blog',
     hasDropdown: true,
     dropdownItems: [
-      { label: 'Add Post', path: '/admin/blog/add', icon: Plus },
-      { label: 'All Posts', path: '/admin/blog', icon: List },
-      { label: 'Categories', path: '/admin/blog/categories', icon: List }
+      { label: 'View All Posts', path: '/admin/blog', icon: List },
+      { label: 'Add New Post', path: '/admin/blog/add', icon: Plus },
     ]
   },
   { 
     id: 'contacts', 
-    label: 'Contacts', 
+    label: 'Messages', 
     icon: MessageSquare, 
     color: 'text-cyan-600', 
-    path: '/admin/contacts',
-    hasDropdown: true,
-    dropdownItems: [
-      { label: 'New Messages', path: '/admin/contacts/new', icon: Plus },
-      { label: 'All Messages', path: '/admin/contacts', icon: List },
-      { label: 'Contact Forms', path: '/admin/contacts/forms', icon: List }
-    ]
+    path: '/admin/contacts' 
   },
   { 
     id: 'analytics', 
-    label: 'Analytics', 
+    label: 'Report & Analytics', 
     icon: BarChart3, 
     color: 'text-red-600', 
     path: '/admin/analytics' 

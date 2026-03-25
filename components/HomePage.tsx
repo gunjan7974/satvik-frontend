@@ -10,17 +10,21 @@ interface HomePageProps {
   onExploreEventsClick: () => void;
   onSearchClick: (query: string) => void;
   onRestaurantClick: () => void;
+  liveEvents?: any[];
+  liveMenus?: any[];
 }
 
 export function HomePage({ 
   onOrderFoodClick, 
   onExploreEventsClick, 
   onSearchClick,
-  onRestaurantClick 
+  onRestaurantClick,
+  liveEvents,
+  liveMenus
 }: HomePageProps) {
   const [searchQuery, setSearchQuery] = useState('');
 
-  const popularRestaurants = [
+  const popularRestaurants = liveMenus || [
     {
       id: 1,
       name: 'Sattvik Kaleva - Main',
@@ -58,7 +62,7 @@ export function HomePage({
     }
   ];
 
-  const upcomingEvents = [
+  const upcomingEvents = liveEvents || [
     {
       id: 1,
       title: 'Wedding Catering Special',

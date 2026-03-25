@@ -7,28 +7,43 @@ import { Footer } from "./Footer";
 import { Chatbot } from "./Chatbot";
 import { MobileBottomNav } from "./MobileBottomNav";
 
+import { useAuth } from "@/hooks/AuthContext";
+
 interface GlobalShellProps {
   children: React.ReactNode;
-  headerProps: {
-    cart: { [key: number]: number };
-    onViewCart: () => void;
-    onNavigateToMenu: () => void;
-    onLoginClick: () => void;
-    onLogoutClick?: () => void;
-    onAdminClick?: () => void;
-    onDashboardClick?: () => void;
-    isLoggedIn: boolean;
-    isAdmin?: boolean;
-    username?: string;
-    onNavigateToHome?: () => void;
-    onNavigateToBlog?: () => void;
-    onNavigateToGallery?: () => void;
-  };
 }
 
-export function GlobalShell({ children, headerProps }: GlobalShellProps) {
+export function GlobalShell({ children }: GlobalShellProps) {
+  const { user, isAuthenticated, logout } = useAuth();
   const pathname = usePathname() ?? "";
   const router = useRouter();
+
+  const handleLogout = () => {
+    logout();
+    router.push('/login');
+  };
+
+  const headerProps = {
+    cart: {},
+    isLoggedIn: isAuthenticated,
+    isAdmin: user?.role === 'admin',
+    username: user?.name,
+    onViewCart: () => router.push('/cart'),
+    onNavigateToMenu: () => router.push('/menu'),
+    onLoginClick: () => router.push('/login'),
+    onLogoutClick: handleLogout,
+    onAdminClick: () => router.push('/admin'),
+    onDashboardClick: () => {
+      const role = user?.role || 'user';
+      if (role === 'admin') router.push('/admin');
+      else if (role === 'vendor') router.push('/vendor/dashboard');
+      else if (role === 'sales') router.push('/sales/dashboard');
+      else router.push('/profile');
+    },
+    onNavigateToHome: () => router.push('/'),
+    onNavigateToBlog: () => router.push('/blog'),
+    onNavigateToGallery: () => router.push('/gallery'),
+  };
 
   const safeHeaderProps = headerProps ?? {
     cart: {},
