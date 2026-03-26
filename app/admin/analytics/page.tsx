@@ -60,7 +60,7 @@ export default function AnalyticsPage() {
       {/* Main Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card className="bg-gradient-to-br from-white to-green-50/30 border-l-4 border-l-green-500 shadow-sm hover:shadow-md transition-shadow">
-          <CardContent className="p-6">
+          <CardContent className="p-2">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-[10px] uppercase font-bold tracking-widest text-green-600 mb-1">Total Revenue</p>

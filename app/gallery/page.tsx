@@ -60,39 +60,51 @@ export default function GalleryPage() {
         
         <div className="relative z-10 text-center px-4">
            <motion.div
-             initial={{ opacity: 0, y: 30 }}
-             animate={{ opacity: 1, y: 0 }}
+             initial={{ opacity: 0, scale: 0.95 }}
+             animate={{ opacity: 1, scale: 1 }}
              transition={{ duration: 0.8 }}
+             className="max-w-4xl mx-auto"
            >
               <Badge className="bg-orange-600 mb-6 px-4 py-1.5 text-sm uppercase tracking-widest font-bold border-0 shadow-xl shadow-orange-600/30">
                  Visual Experience
               </Badge>
-              <h1 className="text-5xl md:text-7xl font-black text-white mb-6 drop-shadow-2xl">
+              <h1 className="text-5xl md:text-7xl font-black text-white mb-8 drop-shadow-2xl">
                  Our <span className="bg-gradient-to-r from-orange-400 to-amber-300 bg-clip-text text-transparent">Gallery</span>
               </h1>
-              <p className="text-slate-300 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed font-medium">
-                 A visual journey through the flavors, moments, and celebrations at Sattvik Kaleva
-              </p>
+              <div 
+                className="inline-block"
+                style={{ 
+                  backgroundColor: 'rgba(0, 0, 0, 0.5)', 
+                  backdropFilter: 'blur(10px)', 
+                  padding: '12px 24px', 
+                  borderRadius: '100px',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)'
+                }}
+              >
+                <p className="text-white text-base md:text-lg leading-relaxed font-bold">
+                   A visual journey through the flavors, moments, and celebrations at Sattvik Kaleva
+                </p>
+              </div>
            </motion.div>
         </div>
       </section>
 
       <div className="max-w-7xl mx-auto px-4 -mt-10 relative z-20">
         {/* Filters */}
-        <div className="flex flex-wrap justify-center gap-3 mb-12">
+        <div className="flex flex-wrap justify-center gap-3 mb-10">
           {categories.map((cat) => (
-            <Button
+            <button
               key={cat}
-              variant={filter === cat ? "default" : "outline"}
               onClick={() => setFilter(cat)}
-              className={`rounded-full px-8 py-6 text-base font-bold transition-all shadow-lg ${
+              className={`px-6 py-2 rounded-full text-sm font-bold transition-all duration-300 shadow-sm border ${
                 filter === cat 
-                ? "bg-orange-600 hover:bg-orange-700 shadow-orange-600/30 -translate-y-1" 
-                : "bg-white border-0 hover:bg-orange-50 text-slate-600 hover:text-orange-600"
+                ? "bg-orange-600 text-white border-orange-600 shadow-md scale-105" 
+                : "bg-white text-slate-600 border-slate-200 hover:border-orange-300 hover:text-orange-600"
               }`}
             >
               {cat}
-            </Button>
+            </button>
           ))}
         </div>
 

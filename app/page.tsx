@@ -49,7 +49,7 @@ export default function Home() {
         }));
 
         setEvents(mappedEvents.slice(0, 3));
-        setMenus(mappedMenus.slice(0, 3));
+        setMenus(mappedMenus.slice(0, 5));
       } catch (error) {
         console.error("Failed to fetch home data:", error);
       } finally {

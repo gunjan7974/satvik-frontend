@@ -190,49 +190,42 @@ export function HomePage({
   <div className="container mx-auto px-4 relative z-10 text-center">
     {/* Main Heading */}
     <h1 
-      className="text-4xl md:text-6xl font-bold text-white mb-6 drop-shadow-2xl"
+      className="text-4xl md:text-6xl font-black text-white mb-6 drop-shadow-2xl leading-tight"
     >
-      Order Fresh Food or <br />Book Memorable Events
+      Order Fresh Food or <br className="hidden md:block" />Book Memorable Events
     </h1>
 
     {/* Subtitle */}
     <p 
-      className="text-white/90 text-lg md:text-xl max-w-2xl mx-auto mb-12 leading-relaxed drop-shadow-md"
+      className="text-white/90 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed px-4"
     >
       All from Sattvik Kaleva — Your trusted partner for delicious vegetarian cuisine 
       and exceptional event experiences
     </p>
 
     {/* Action Buttons */}
-    <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-      {/* Primary Button */}
+    <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12 px-6">
       <button
         onClick={onOrderFoodClick}
         style={{
           background: '#ffffff',
           color: '#f97316',
-          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-          paddingLeft: '2rem', 
-    paddingRight: '2rem',
+          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
         }}
-        className="flex items-center justify-center gap-2 text-lg font-semibold px-8 py-6 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-2xl"
+        className="flex items-center justify-center gap-3 text-base md:text-lg font-bold px-8 py-5 md:py-6 rounded-2xl transition-all duration-300 hover:scale-105 active:scale-95"
       >
         <Utensils style={{ width: '20px', height: '20px' }} />
-        Order Food Now
+        Order Food
       </button>
 
-      {/* Secondary Button */}
       <button
         onClick={onExploreEventsClick}
         style={{
           border: '2px solid #ffffff',
           color: '#ffffff',
           background: 'transparent',
-          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-          paddingLeft: '2rem', 
-    paddingRight: '2rem',
         }}
-        className="flex items-center justify-center gap-2 text-lg font-semibold px-8 py-6 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:bg-white hover:text-purple-600"
+        className="flex items-center justify-center gap-3 text-base md:text-lg font-bold px-8 py-5 md:py-6 rounded-2xl transition-all duration-300 hover:bg-white hover:text-orange-600 active:scale-95"
       >
         <Calendar style={{ width: '20px', height: '20px' }} />
         Explore Events
@@ -241,7 +234,7 @@ export function HomePage({
   </div>
 
   {/* Scroll Indicator */}
-  <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
+  <div className="absolute bottom-6 left-1/2 -translate-x-1/2 animate-bounce hidden md:block">
     <div 
       className="w-6 h-10 rounded-full flex justify-center"
       style={{ border: '2px solid rgba(255, 255, 255, 0.7)' }}
@@ -275,38 +268,28 @@ export function HomePage({
       </section> */}
 
       {/* Cuisine Categories */}
-     {/* Cuisine Categories */}
-<section className="py-20 bg-slate-50">
+<section className="py-16 bg-slate-50">
   <div className="container mx-auto px-4">
-    <div className="text-center mb-16">
-      <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-4">
+    <div className="text-center mb-12">
+      <h2 className="text-3xl md:text-5xl font-black text-slate-900 mb-4">
         <span className="bg-gradient-to-r from-orange-600 to-amber-700 bg-clip-text text-transparent">Explore Categories</span>
       </h2>
-      <p className="text-xl text-slate-600 max-w-2xl mx-auto">
-        Discover diverse vegetarian cuisines crafted with authentic flavors and fresh ingredients
-      </p>
     </div>
 
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-8 gap-4">
+    <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-8 gap-3">
       {cuisineCategories.map((category, index) => (
         <button
           key={index}
           onClick={onOrderFoodClick}
-          className="group relative bg-white rounded-xl p-4 shadow-lg hover:shadow-2xl transition-all duration-500 border border-slate-200 hover:border-transparent overflow-hidden"
+          className="group relative bg-white rounded-2xl p-4 shadow-sm hover:shadow-xl transition-all duration-500 border border-slate-100 overflow-hidden"
         >
-          {/* Gradient Background */}
-          <div className={`absolute inset-0 bg-gradient-to-br ${category.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}></div>
-          
-          <div className="relative z-10">
-            <div className="text-3xl mb-2 group-hover:scale-110 transition-transform duration-300 filter drop-shadow-lg">
+          <div className="relative z-10 text-center">
+            <div className="text-2xl md:text-3xl mb-2 group-hover:scale-110 transition-transform duration-300">
               {category.icon}
             </div>
-            <h3 className="font-bold text-slate-900 group-hover:text-white text-sm mb-1 transition-colors duration-300">
+            <h3 className="font-bold text-slate-900 text-[10px] md:text-xs mb-1">
               {category.name}
             </h3>
-            <p className="text-xs text-slate-500 group-hover:text-white/90 transition-colors duration-300">
-              {category.items}
-            </p>
           </div>
         </button>
       ))}
@@ -437,26 +420,24 @@ export function HomePage({
 </section>
 
       {/* Popular Restaurants */}
-      <section className="py-20 bg-white">
+      <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between mb-16">
+          <div className="flex items-center justify-between mb-12">
             <div>
-              <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-4">
-               <span className="bg-gradient-to-r from-orange-600 to-amber-700 bg-clip-text text-transparent">  Popular Restaurants</span>
+              <h2 className="text-3xl md:text-5xl font-black text-slate-900">
+                <span className="bg-gradient-to-r from-orange-600 to-amber-700 bg-clip-text text-transparent">Popular Restaurants</span>
               </h2>
-              <p className="text-xl text-slate-600">Most loved by our customers</p>
             </div>
             <Button 
               variant="ghost" 
               onClick={onOrderFoodClick} 
-              className="text-orange-600 hover:text-orange-700 hover:bg-orange-50 rounded-2xl font-bold text-lg px-8 py-6 hidden md:flex"
+              className="text-orange-600 font-bold hidden md:flex"
             >
-              View All
-              <ChevronRight className="ml-2 h-5 w-5" />
+              View All <ChevronRight className="ml-1 h-4 w-4" />
             </Button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
             {popularRestaurants.map((restaurant) => (
               <Card 
                 key={restaurant.id}
@@ -464,7 +445,7 @@ export function HomePage({
                 className="group relative overflow-hidden bg-white rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 cursor-pointer border border-slate-200 hover:border-orange-200 transform hover:-translate-y-2"
               >
                 {/* Image Container */}
-                <div className="relative h-64 overflow-hidden">
+                <div className="relative h-48 overflow-hidden">
                   <img
                     src={restaurant.image}
                     alt={restaurant.name}

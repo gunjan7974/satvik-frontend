@@ -34,6 +34,7 @@ export interface MenuItem {
   reviews?: MenuItemReview[];
   averageRating?: number;
   totalReviews?: number;
+  serverId?: string;
   offer?: {
     id: string;
     type: 'percentage' | 'fixed';
@@ -280,39 +281,8 @@ export function Menu({
   }, 0);
 
   return (
-    <section id="menu" className="py-12 md:py-20 bg-gradient-to-br from-orange-50 via-white to-amber-50 relative overflow-hidden">
-      {/* Decorative Background */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-orange-200/30 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-amber-200/30 rounded-full blur-3xl" />
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-10 md:mb-16"
-        >
-          <motion.div
-            initial={{ scale: 0 }}
-            whileInView={{ scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ type: "spring", stiffness: 200 }}
-            className="inline-block mb-4"
-          >
-            <div className="bg-gradient-to-r from-orange-500 to-red-500 p-3 rounded-full shadow-lg">
-              <Sparkles className="h-8 w-8 text-white" />
-            </div>
-          </motion.div>
-          <h2 className="text-3xl md:text-5xl font-bold bg-gradient-to-r from-orange-600 via-red-600 to-amber-600 bg-clip-text text-transparent mb-3">
-            Our Menu
-          </h2>
-          <p className="text-base md:text-lg text-gray-600 max-w-2xl mx-auto">
-            Authentic vegetarian delicacies crafted with love and tradition
-          </p>
-        </motion.div>
+    <section id="menu" className="py-2 md:py-4 bg-gradient-to-br from-orange-50 via-white to-amber-50 relative overflow-hidden">
+      <div className="w-full mx-auto px-2 sm:px-4 lg:px-6 relative z-10">
 
         {/* Login Alert */}
         <AnimatePresence>
@@ -414,24 +384,44 @@ export function Menu({
         </div>
 
         {/* Menu Grid */}
-        {displayedItems.length === 0 ? (
-          <div className="text-center py-16 bg-white rounded-2xl shadow-sm">
-            <Heart className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-            <p className="text-gray-500">No dishes match your search or filter.</p>
-            <Button
-              variant="link"
-              onClick={() => {
-                setSearchQuery("");
-                setDietFilter(null);
-                setSelectedCategory("All");
-              }}
-              className="text-orange-600 mt-2"
-            >
-              Clear filters
-            </Button>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 mb-10">
+        <div className="w-full">
+          <style dangerouslySetInnerHTML={{ __html: `
+            .responsive-menu-grid {
+              display: grid;
+              grid-template-columns: repeat(2, 1fr);
+              gap: 12px;
+            }
+            @media (min-width: 640px) {
+              .responsive-menu-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 16px;
+              }
+            }
+            @media (min-width: 1024px) {
+              .responsive-menu-grid {
+                grid-template-columns: repeat(5, 1fr);
+                gap: 20px;
+              }
+            }
+          `}} />
+          {displayedItems.length === 0 ? (
+            <div className="text-center py-16 bg-white rounded-2xl shadow-sm">
+              <Heart className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+              <p className="text-gray-500">No dishes match your search or filter.</p>
+              <Button
+                variant="link"
+                onClick={() => {
+                  setSearchQuery("");
+                  setDietFilter(null);
+                  setSelectedCategory("All");
+                }}
+                className="text-orange-600 mt-2"
+              >
+                Clear filters
+              </Button>
+            </div>
+          ) : (
+            <div className="responsive-menu-grid">
             {displayedItems.map((item, index) => {
               const cartQuantity = cart[item.id] || 0;
               const itemTotal = item.price * cartQuantity;
@@ -446,96 +436,97 @@ export function Menu({
                   whileHover={{ y: -4 }}
                   className="group"
                 >
-                  <Card className="h-full overflow-hidden rounded-2xl border-0 shadow-md hover:shadow-xl transition-all duration-300 bg-white">
-                    <div className="relative aspect-square overflow-hidden">
+                  <Card className="h-full overflow-hidden rounded-3xl border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-500 bg-white group flex flex-col">
+                      {/* Image Header */}
+                    <div className="relative h-32 overflow-hidden flex-shrink-0">
                       <img
                         src={item.image}
                         alt={item.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                       />
-                      <div className="absolute top-2 left-2 flex gap-1">
-                        <Badge
-                          className={`text-[10px] px-1.5 py-0.5 ${
-                            item.isVeg
-                              ? "bg-green-500 text-white"
-                              : "bg-red-500 text-white"
-                          } border-0`}
-                        >
-                          {item.isVeg ? "Veg" : "Non-Veg"}
-                        </Badge>
-                        {item.isNew && (
-                          <Badge className="bg-orange-500 text-white border-0 text-[10px] px-1.5 py-0.5">
-                            New
-                          </Badge>
-                        )}
+                      
+                      {/* Gradient Overlay for labels */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                      {/* Top Badges */}
+                      <div className="absolute top-3 left-3 flex flex-col gap-2">
+                        <div className={`w-3.5 h-3.5 rounded-sm border-2 ${item.isVeg ? 'border-green-600' : 'border-red-600'} flex items-center justify-center p-[2px]`}>
+                          <div className={`w-full h-full rounded-full ${item.isVeg ? 'bg-green-600' : 'bg-red-600'}`} />
+                        </div>
                       </div>
+
                       {item.rating && (
-                        <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm rounded-full px-2 py-0.5 flex items-center gap-1 shadow-sm">
+                        <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-sm rounded-lg px-1.5 py-0.5 flex items-center gap-1 shadow-lg border border-slate-100">
                           <Star className="h-3 w-3 text-yellow-500 fill-yellow-500" />
-                          <span className="text-xs font-semibold">{item.rating}</span>
+                          <span className="text-[11px] font-black text-slate-800">{item.rating}</span>
                         </div>
                       )}
                     </div>
-                    <CardContent className="p-3 md:p-4">
-                      <h3 className="font-bold text-sm md:text-base line-clamp-1 mb-1">
-                        {item.name}
-                      </h3>
-                      <p className="text-gray-500 text-[11px] md:text-xs line-clamp-2 mb-2">
+
+                    {/* Content Details */}
+                    <CardContent className="p-4 flex-1 flex flex-col items-start text-left">
+                      <div className="w-full flex items-center justify-between mb-2">
+                         <h3 className="font-black text-slate-900 text-[11px] uppercase tracking-widest flex-1">
+                           {item.name}
+                         </h3>
+                         <span className="bg-orange-50 text-orange-600 font-black text-[10px] px-2 py-0.5 rounded-full border border-orange-100 shadow-sm">
+                           ₹{item.price}
+                         </span>
+                      </div>
+                      
+                      <p className="text-slate-400 text-[9px] leading-relaxed line-clamp-2 mb-4 italic font-medium">
                         {item.description}
                       </p>
-                      <div className="flex items-center justify-between mt-2">
-                        <span className="font-bold text-orange-600 text-sm md:text-base">
-                          ₹{item.price}
-                        </span>
-                        <Badge variant="outline" className="text-[10px] bg-gray-50">
-                          {item.category}
-                        </Badge>
-                      </div>
-                    </CardContent>
-                    <CardFooter className="p-3 pt-0">
-                      {cartQuantity > 0 ? (
-                        <div className="flex items-center justify-between w-full bg-orange-50 rounded-lg p-1">
-                          <div className="flex items-center gap-2">
-                            <Button
-                              size="icon"
-                              variant="ghost"
+                      
+                      <div className="mt-auto w-full">
+                        {cartQuantity > 0 ? (
+                          <div className="flex items-center justify-between bg-orange-50 border border-orange-100 rounded-xl p-1 shadow-sm">
+                            <button
                               onClick={() => onRemoveFromCart(item.id.toString())}
-                              className="h-7 w-7 rounded-full hover:bg-orange-200"
+                              className="w-8 h-8 rounded-lg hover:bg-orange-100 flex items-center justify-center text-orange-600 transition-colors"
                             >
                               <Minus className="h-3 w-3" />
-                            </Button>
-                            <span className="font-semibold text-sm w-5 text-center">
+                            </button>
+                            <span className="font-black text-xs text-orange-700 w-4 text-center">
                               {cartQuantity}
                             </span>
-                            <Button
-                              size="icon"
-                              variant="ghost"
+                            <button
                               onClick={() => handleAddToCart(item.id.toString())}
-                              className="h-7 w-7 rounded-full hover:bg-orange-200"
+                              className="w-8 h-8 rounded-lg hover:bg-orange-100 flex items-center justify-center text-orange-600 transition-colors"
                             >
                               <Plus className="h-3 w-3" />
-                            </Button>
+                            </button>
                           </div>
-                          <span className="font-bold text-sm text-orange-600">
-                            ₹{Math.round(itemTotal)}
-                          </span>
-                        </div>
-                      ) : (
-                        <Button
-                          className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white rounded-full h-8 text-xs font-medium shadow-sm"
-                          onClick={() => handleAddToCart(item.id.toString())}
-                        >
-                          <Plus className="h-3 w-3 mr-1" />
-                          Add to Cart
-                        </Button>
-                      )}
-                    </CardFooter>
+                        ) : (
+                          <button
+                            onClick={() => handleAddToCart(item.id.toString())}
+                            className="w-full text-white font-black rounded-full py-1 text-[9px] tracking-wider transition-all duration-300 flex items-center justify-center gap-1 transform hover:-translate-y-0.5 active:scale-[0.97] active:shadow-sm"
+                            style={{ 
+                              background: 'linear-gradient(135deg, #FF6B2C 0%, #FF3D00 100%)',
+                              boxShadow: '0 4px 12px -3px rgba(255, 107, 44, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3)',
+                              border: '1px solid rgba(255, 107, 44, 0.1)'
+                            }}
+                            onMouseOver={(e) => {
+                              e.currentTarget.style.background = 'linear-gradient(135deg, #FF7A3D 0%, #FF4A1A 100%)';
+                              e.currentTarget.style.boxShadow = '0 8px 15px -3px rgba(255, 107, 44, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.4)';
+                            }}
+                            onMouseOut={(e) => {
+                              e.currentTarget.style.background = 'linear-gradient(135deg, #FF6B2C 0%, #FF3D00 100%)';
+                              e.currentTarget.style.boxShadow = '0 4px 12px -3px rgba(255, 107, 44, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3)';
+                            }}
+                          >
+                             + Add to Cart
+                          </button>
+                        )}
+                      </div>
+                    </CardContent>
                   </Card>
                 </motion.div>
               );
             })}
-          </div>
-        )}
+            </div>
+          )}
+        </div>
 
         {/* Show All Button */}
         {hasMoreItems && onShowAllClick && (
@@ -597,7 +588,7 @@ export function Menu({
       </div>
 
       {/* Features Footer */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16">
+      <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 mt-16">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center py-8 border-t border-orange-100">
           <div className="flex flex-col items-center gap-2">
             <div className="bg-orange-50 w-12 h-12 rounded-full flex items-center justify-center">
