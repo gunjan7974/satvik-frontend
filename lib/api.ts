@@ -425,15 +425,10 @@ class ApiClient {
     try {
       const response = await fetch(url, config);
 
-      // Handle unauthorized responses
-      if (response.status === 403) {
-        throw new Error('Session expired');
-      }
-
-      // Handle token expiration
-      if (response.status === 403) {
+      // Handle unauthorized or forbidden responses
+      if (response.status === 401 || response.status === 403) {
         authToken.remove();
-        throw new Error('Session expired. Please login again.');
+        throw new Error('Session expired');
       }
 
       const contentType = response.headers.get('content-type');
@@ -564,36 +559,39 @@ class ApiClient {
   }
 
   // ==================== CART APIs ====================
-
   async getCart(): Promise<CartResponse> {
-    return this.request<CartResponse>('/cart');
+    const data = await this.request<any>('/cart');
+    return { success: true, cart: data };
   }
 
-  async addToCart(menuId: string, quantity: number = 1): Promise<CartResponse> {
-    return this.request<CartResponse>('/cart/add', {
+  async addToCart(foodId: string, quantity: number = 1): Promise<CartResponse> {
+    const data = await this.request<any>('/cart', {
       method: 'POST',
-      body: JSON.stringify({ menuId, quantity })
+      body: JSON.stringify({ foodId, quantity })
     });
+    return { success: true, cart: data };
   }
 
-  async updateCartItem(menuId: string, quantity: number): Promise<CartResponse> {
-    return this.request<CartResponse>('/cart/update', {
+  async updateCartItem(foodId: string, action: 'increase' | 'decrease'): Promise<CartResponse> {
+    const data = await this.request<any>(`/cart/${foodId}`, {
       method: 'PUT',
-      body: JSON.stringify({ menuId, quantity })
+      body: JSON.stringify({ action })
     });
+    return { success: true, cart: data };
   }
 
-  async removeFromCart(menuId: string): Promise<CartResponse> {
-    return this.request<CartResponse>('/cart/remove', {
-      method: 'DELETE',
-      body: JSON.stringify({ menuId })
+  async removeFromCart(foodId: string): Promise<CartResponse> {
+    const data = await this.request<any>(`/cart/${foodId}`, {
+      method: 'DELETE'
     });
+    return { success: true, cart: data };
   }
 
   async clearCart(): Promise<CartResponse> {
-    return this.request<CartResponse>('/cart/clear', {
-      method: 'POST'
+    const data = await this.request<any>('/cart', {
+      method: 'DELETE'
     });
+    return { success: true, cart: data };
   }
 
   // Helper method to get cart item count

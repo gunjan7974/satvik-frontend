@@ -17,21 +17,21 @@ export default function Home() {
     const fetchHomeData = async () => {
       try {
         const [eventsRes, menusRes] = await Promise.all([
-          apiClient.getEventBookings(),
+          apiClient.getEventTypes(),
           apiClient.getMenus({ page: 1, limit: 6 })
         ]);
 
-        // Map events
+        // Map event types to display on home
         const mappedEvents = eventsRes.map((e: any) => ({
           id: e._id,
-          title: e.title,
-          date: e.date || 'Book Now',
-          time: e.time || '',
-          category: e.category || 'Celebration',
-          guests: `${e.maxAttendees || 100}+ Guests`,
+          title: e.name,
+          date: 'Book Now',
+          time: 'Available Anytime',
+          category: 'Event Category',
+          guests: 'Flexible',
           image: e.image ? `http://localhost:5000${e.image}` : "https://via.placeholder.com/800x600?text=Event",
-          price: `From ₹${e.price || 0}`,
-          featured: e.featured || false
+          price: `Starting ₹${e.basePrice || 0}`,
+          featured: true
         }));
 
         // Map menus

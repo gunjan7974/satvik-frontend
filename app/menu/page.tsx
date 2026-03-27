@@ -5,12 +5,13 @@ import { useRouter } from "next/navigation";
 import { Menu } from "../../components/Menu";
 import { apiClient } from "../../lib/api";
 import { useAuth } from "../../hooks/AuthContext";
+import { useCart } from "../../hooks/CartContext";
 import { Loader2 } from "lucide-react";
 
 export default function MenuPage() {
   const [menuItems, setMenuItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [cart, setCart] = useState<any>(null);
+  const { cart, addToCart, removeFromCart, updateQuantity, refreshCart } = useCart();
   const router = useRouter();
   const { isAuthenticated } = useAuth();
 
@@ -39,9 +40,7 @@ export default function MenuPage() {
         serverId: m._id
       })));
 
-      if (cartRes && (cartRes as any).success) {
-        setCart((cartRes as any).cart);
-      }
+      // Cart fetching is now handled by CartContext
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -49,40 +48,16 @@ export default function MenuPage() {
     }
   };
 
-  const getCartItemsMap = () => {
-    if (!cart || !cart.items) return {};
-    const cartMap: { [key: string]: number } = {};
-    cart.items.forEach((item: any) => {
-      const menuId = typeof item.menu === 'string' ? item.menu : item.menu?._id;
-      if (menuId) cartMap[menuId] = item.quantity;
-    });
-    return cartMap;
-  };
-
   const handleAddToCart = async (id: any) => {
     if (!isAuthenticated) return router.push("/login");
-    try {
-      const res = await apiClient.addToCart(id, 1);
-      if (res.success) setCart(res.cart);
-    } catch (error) {
-      console.error(error);
-    }
+    await addToCart(id);
+    router.push("/cart");
   };
 
   const handleRemoveFromCart = async (id: any) => {
     if (!isAuthenticated) return;
-    try {
-      const currentQuantity = getCartItemsMap()[id] || 0;
-      if (currentQuantity <= 1) {
-        const res = await apiClient.removeFromCart(id);
-        if (res.success) setCart(res.cart);
-      } else {
-        const res = await apiClient.updateCartItem(id, currentQuantity - 1);
-        if (res.success) setCart(res.cart);
-      }
-    } catch (error) {
-      console.error(error);
-    }
+    const currentQuantity = cart[id] || 0;
+    await updateQuantity(id, currentQuantity - 1);
   };
 
   if (loading) {
@@ -96,7 +71,7 @@ export default function MenuPage() {
 
   return (
     <Menu
-      cart={getCartItemsMap()}
+      cart={cart}
       onAddToCart={handleAddToCart}
       onRemoveFromCart={handleRemoveFromCart}
       onViewCart={() => router.push("/cart")}

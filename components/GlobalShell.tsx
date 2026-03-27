@@ -8,6 +8,7 @@ import { Chatbot } from "./Chatbot";
 import { MobileBottomNav } from "./MobileBottomNav";
 
 import { useAuth } from "@/hooks/AuthContext";
+import { useCart } from "@/hooks/CartContext";
 
 interface GlobalShellProps {
   children: React.ReactNode;
@@ -15,6 +16,7 @@ interface GlobalShellProps {
 
 export function GlobalShell({ children }: GlobalShellProps) {
   const { user, isAuthenticated, logout } = useAuth();
+  const { cart, cartData, totalItems } = useCart();
   const pathname = usePathname() ?? "";
   const router = useRouter();
 
@@ -24,7 +26,8 @@ export function GlobalShell({ children }: GlobalShellProps) {
   };
 
   const headerProps = {
-    cart: {},
+    cart: cart || {},
+    cartTotal: cartData?.total || 0,
     isLoggedIn: isAuthenticated,
     isAdmin: user?.role === 'admin',
     username: user?.name,
@@ -88,10 +91,7 @@ export function GlobalShell({ children }: GlobalShellProps) {
           currentPage={
             pathname === "/" ? "homepage" : (pathname.split("/")[1] || "home")
           }
-          cartCount={Object.values(safeHeaderProps.cart ?? {}).reduce(
-            (acc, v) => acc + (typeof v === "number" ? v : 0),
-            0
-          )}
+          cartCount={totalItems}
           onNavigate={(page: string) => {
             switch (page) {
               case "home":

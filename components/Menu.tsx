@@ -322,11 +322,10 @@ export function Menu({
                   variant={selectedCategory === category ? "default" : "outline"}
                   size="sm"
                   onClick={() => setSelectedCategory(category)}
-                  className={`rounded-full whitespace-nowrap transition-all duration-200 ${
-                    selectedCategory === category
+                  className={`rounded-full whitespace-nowrap transition-all duration-200 ${selectedCategory === category
                       ? "bg-gradient-to-r from-orange-600 to-red-600 shadow-md"
                       : "hover:border-orange-300"
-                  }`}
+                    }`}
                 >
                   {category}
                 </Button>
@@ -385,7 +384,8 @@ export function Menu({
 
         {/* Menu Grid */}
         <div className="w-full">
-          <style dangerouslySetInnerHTML={{ __html: `
+          <style dangerouslySetInnerHTML={{
+            __html: `
             .responsive-menu-grid {
               display: grid;
               grid-template-columns: repeat(2, 1fr);
@@ -399,7 +399,7 @@ export function Menu({
             }
             @media (min-width: 1024px) {
               .responsive-menu-grid {
-                grid-template-columns: repeat(5, 1fr);
+                grid-template-columns: repeat(4, 1fr);
                 gap: 20px;
               }
             }
@@ -422,108 +422,115 @@ export function Menu({
             </div>
           ) : (
             <div className="responsive-menu-grid">
-            {displayedItems.map((item, index) => {
-              const cartQuantity = cart[item.id] || 0;
-              const itemTotal = item.price * cartQuantity;
+              {displayedItems.map((item, index) => {
+                const cartQuantity = cart[item.id] || 0;
 
-              return (
-                <motion.div
-                  key={item.id}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.05, duration: 0.3 }}
-                  whileHover={{ y: -4 }}
-                  className="group"
-                >
-                  <Card className="h-full overflow-hidden rounded-3xl border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-500 bg-white group flex flex-col">
+                return (
+                  <motion.div
+                    key={item.id}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.05, duration: 0.3 }}
+                    whileHover={{ y: -4 }}
+                    className="group"
+                  >
+                    <div className="h-full overflow-hidden !border-0 !shadow-none hover:shadow-2xl hover:bg-white rounded-3xl transition-all duration-500 bg-transparent group flex flex-col">
                       {/* Image Header */}
-                    <div className="relative h-32 overflow-hidden flex-shrink-0">
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                      />
-                      
-                      {/* Gradient Overlay for labels */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                      <div className="relative h-32 overflow-hidden flex-shrink-0">
+                        <img
+                          src={item.image}
+                          alt={item.name}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                        />
 
-                      {/* Top Badges */}
-                      <div className="absolute top-3 left-3 flex flex-col gap-2">
-                        <div className={`w-3.5 h-3.5 rounded-sm border-2 ${item.isVeg ? 'border-green-600' : 'border-red-600'} flex items-center justify-center p-[2px]`}>
-                          <div className={`w-full h-full rounded-full ${item.isVeg ? 'bg-green-600' : 'bg-red-600'}`} />
-                        </div>
-                      </div>
+                        {/* Gradient Overlay for labels */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-                      {item.rating && (
-                        <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-sm rounded-lg px-1.5 py-0.5 flex items-center gap-1 shadow-lg border border-slate-100">
-                          <Star className="h-3 w-3 text-yellow-500 fill-yellow-500" />
-                          <span className="text-[11px] font-black text-slate-800">{item.rating}</span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Content Details */}
-                    <CardContent className="p-4 flex-1 flex flex-col items-start text-left">
-                      <div className="w-full flex items-center justify-between mb-2">
-                         <h3 className="font-black text-slate-900 text-[11px] uppercase tracking-widest flex-1">
-                           {item.name}
-                         </h3>
-                         <span className="bg-orange-50 text-orange-600 font-black text-[10px] px-2 py-0.5 rounded-full border border-orange-100 shadow-sm">
-                           ₹{item.price}
-                         </span>
-                      </div>
-                      
-                      <p className="text-slate-400 text-[9px] leading-relaxed line-clamp-2 mb-4 italic font-medium">
-                        {item.description}
-                      </p>
-                      
-                      <div className="mt-auto w-full">
-                        {cartQuantity > 0 ? (
-                          <div className="flex items-center justify-between bg-orange-50 border border-orange-100 rounded-xl p-1 shadow-sm">
-                            <button
-                              onClick={() => onRemoveFromCart(item.id.toString())}
-                              className="w-8 h-8 rounded-lg hover:bg-orange-100 flex items-center justify-center text-orange-600 transition-colors"
-                            >
-                              <Minus className="h-3 w-3" />
-                            </button>
-                            <span className="font-black text-xs text-orange-700 w-4 text-center">
-                              {cartQuantity}
-                            </span>
-                            <button
-                              onClick={() => handleAddToCart(item.id.toString())}
-                              className="w-8 h-8 rounded-lg hover:bg-orange-100 flex items-center justify-center text-orange-600 transition-colors"
-                            >
-                              <Plus className="h-3 w-3" />
-                            </button>
+                        {/* Top Badges */}
+                        <div className="absolute top-3 left-3 flex flex-col gap-2">
+                          <div className={`w-3.5 h-3.5 rounded-sm border-2 ${item.isVeg ? 'border-green-600' : 'border-red-600'} flex items-center justify-center p-[2px]`}>
+                            <div className={`w-full h-full rounded-full ${item.isVeg ? 'bg-green-600' : 'bg-red-600'}`} />
                           </div>
-                        ) : (
-                          <button
-                            onClick={() => handleAddToCart(item.id.toString())}
-                            className="w-full text-white font-black rounded-full py-1 text-[9px] tracking-wider transition-all duration-300 flex items-center justify-center gap-1 transform hover:-translate-y-0.5 active:scale-[0.97] active:shadow-sm"
-                            style={{ 
-                              background: 'linear-gradient(135deg, #FF6B2C 0%, #FF3D00 100%)',
-                              boxShadow: '0 4px 12px -3px rgba(255, 107, 44, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3)',
-                              border: '1px solid rgba(255, 107, 44, 0.1)'
-                            }}
-                            onMouseOver={(e) => {
-                              e.currentTarget.style.background = 'linear-gradient(135deg, #FF7A3D 0%, #FF4A1A 100%)';
-                              e.currentTarget.style.boxShadow = '0 8px 15px -3px rgba(255, 107, 44, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.4)';
-                            }}
-                            onMouseOut={(e) => {
-                              e.currentTarget.style.background = 'linear-gradient(135deg, #FF6B2C 0%, #FF3D00 100%)';
-                              e.currentTarget.style.boxShadow = '0 4px 12px -3px rgba(255, 107, 44, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3)';
-                            }}
-                          >
-                             + Add to Cart
-                          </button>
+                        </div>
+
+                        {item.rating && (
+                          <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-sm rounded-lg px-1.5 py-0.5 flex items-center gap-1 shadow-lg border border-slate-100">
+                            <Star className="h-3 w-3 text-yellow-500 fill-yellow-500" />
+                            <span className="text-[11px] font-black text-slate-800">{item.rating}</span>
+                          </div>
                         )}
                       </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              );
-            })}
+
+                      {/* Content Details */}
+                      <CardContent className="pl-11 pr-5 py-5 flex-1 flex flex-col items-start text-left gap-1.5">
+                        <h3 className="font-bold text-slate-900 text-[20px] leading-tight">
+                          {item.name}
+                        </h3>
+
+                        <p className="text-slate-500 text-[11px] leading-snug line-clamp-2">
+                          {item.description}
+                        </p>
+
+                        <div className="flex items-center gap-1.5 my-1">
+                          <StarRating rating={item.rating || 5} size="md" />
+                          <span className="text-slate-400 text-[13px] font-medium">{item.rating || 5}</span>
+                        </div>
+
+                        <div className="text-[28px] font-black text-orange-600 my-1">
+                          ₹{item.price}
+                        </div>
+
+                          <div className="inline-block px-4 py-1.5 rounded-full border-none text-slate-700 text-[10px] font-black uppercase tracking-wider mb-4 shadow-sm bg-slate-50">
+                          {/^[0-9a-fA-F]{24}$/.test(item.category) ? 'Specials' : (item.category || 'Specials')}
+                        </div>
+
+                        <div className="mt-auto w-full">
+                          {cartQuantity > 0 ? (
+                            <div className="flex items-center justify-between bg-orange-50 border border-orange-100 rounded-xl p-1 shadow-sm">
+                              <button
+                                onClick={() => onRemoveFromCart(item.id.toString())}
+                                className="w-8 h-8 rounded-lg hover:bg-orange-100 flex items-center justify-center text-orange-600 transition-colors"
+                              >
+                                <Minus className="h-3 w-3" />
+                              </button>
+                              <span className="font-black text-xs text-orange-700 w-4 text-center">
+                                {cartQuantity}
+                              </span>
+                              <button
+                                onClick={() => handleAddToCart(item.id.toString())}
+                                className="w-8 h-8 rounded-lg hover:bg-orange-100 flex items-center justify-center text-orange-600 transition-colors"
+                              >
+                                <Plus className="h-3 w-3" />
+                              </button>
+                            </div>
+                          ) : (
+                            <button
+                              onClick={() => handleAddToCart(item.id.toString())}
+                              className="w-full text-white font-black rounded-full py-1 text-[9px] tracking-wider transition-all duration-300 flex items-center justify-center gap-1 transform hover:-translate-y-0.5 active:scale-[0.97] active:shadow-sm"
+                              style={{
+                                background: 'linear-gradient(135deg, #FF6B2C 0%, #FF3D00 100%)',
+                                boxShadow: '0 4px 12px -3px rgba(255, 107, 44, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3)',
+                                border: '1px solid rgba(255, 107, 44, 0.1)'
+                              }}
+                              onMouseOver={(e) => {
+                                e.currentTarget.style.background = 'linear-gradient(135deg, #FF7A3D 0%, #FF4A1A 100%)';
+                                e.currentTarget.style.boxShadow = '0 8px 15px -3px rgba(255, 107, 44, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.4)';
+                              }}
+                              onMouseOut={(e) => {
+                                e.currentTarget.style.background = 'linear-gradient(135deg, #FF6B2C 0%, #FF3D00 100%)';
+                                e.currentTarget.style.boxShadow = '0 4px 12px -3px rgba(255, 107, 44, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3)';
+                              }}
+                            >
+                              + Add to Cart
+                            </button>
+                          )}
+                        </div>
+                      </CardContent>
+                    </div>
+                  </motion.div>
+                );
+              })}
             </div>
           )}
         </div>

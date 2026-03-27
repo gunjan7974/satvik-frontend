@@ -2,67 +2,31 @@
 
 import { Checkout } from "@/components/Checkout";
 import { ErrorBoundary } from "@/components/error-boundary";
-import { useAuth } from "@/hooks/useAuth";
-import type { CartItem } from "@/types/cart";
+import { useAuth } from "@/hooks/AuthContext";
+import { useCart } from "@/hooks/CartContext";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { apiClient } from "@/lib/api";
 
 export default function CheckoutPage() {
   const router = useRouter();
   const { isAuthenticated, user } = useAuth();
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [cartTotal, setCartTotal] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
+  const { cartData, loading, clearCart } = useCart();
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
 
-  // ✅ Default data with all required fields (no type error)
-  const defaultCart: CartItem[] = [
-    {
-      id: 1,
-      name: "Paneer Butter Masala",
-      description: "Soft paneer cubes cooked in a creamy tomato gravy",
-      category: "Main Course",
-      price: 220,
-      quantity: 2,
-      image: "/images/paneer-butter-masala.jpg",
-    },
-    {
-      id: 2,
-      name: "Butter Naan",
-      description: "Tandoor baked naan brushed with butter",
-      category: "Breads",
-      price: 40,
-      quantity: 3,
-      image: "/images/butter-naan.jpg",
-    },
-  ];
-
-  // ✅ Simulate loading cart
-  useEffect(() => {
-    const loadCart = () => {
-      if (!isAuthenticated) {
-        localStorage.setItem("redirectAfterLogin", "/cart/checkout");
-        router.push("/login");
-        return;
-      }
-
-      setIsLoading(true);
-      setTimeout(() => {
-        setCartItems(defaultCart);
-        setCartTotal( 0);
-        setIsLoading(false);
-      }, 500);
-    };
-
-    loadCart();
-  }, [isAuthenticated, router]);
+  const cartItems = cartData?.items.map((item: any) => ({
+    id: typeof item.food === 'string' ? item.food : item.food?._id,
+    name: typeof item.food === 'string' ? item.title : item.food?.title,
+    price: typeof item.food === 'string' ? item.price : item.food?.price,
+    quantity: item.quantity,
+    image: item.image || (typeof item.food !== 'string' ? item.food?.image : ""),
+    subtotal: item.subtotal,
+    description: typeof item.food !== 'string' ? item.food?.description : "No description",
+    category: typeof item.food !== 'string' ? item.food?.category : "General",
+  })) || [];
 
   const handlePlaceOrder = async (orderData: any) => {
-    if (!isAuthenticated) {
-      router.push("/login");
-      return;
-    }
+    if (!isAuthenticated) return router.push("/login");
 
     try {
       setIsPlacingOrder(true);
@@ -70,36 +34,41 @@ export default function CheckoutPage() {
       const completeOrderData = {
         customer: {
           name: orderData.name || user?.name || "Guest User",
-          email: orderData.email || user?.email || "guest@example.com",
-          phone: orderData.phone || "9876543210",
-          address:
-            orderData.deliveryType === "delivery"
-              ? {
-                  line1: orderData.address || "Default Street",
-                  line2: orderData.landmark || "",
-                  city: orderData.city || "Raipur",
-                  state: "Chhattisgarh",
-                  postalCode: orderData.pincode || "492001",
-                  country: "India",
-                }
-              : {},
+          email: orderData.email || user?.email || "",
+          phone: orderData.phone || "",
+          address: orderData.deliveryType === "delivery" ? {
+            line1: orderData.address || "",
+            line2: orderData.landmark || "",
+            city: orderData.city || "Raipur",
+            state: "Chhattisgarh",
+            postalCode: orderData.pincode || "",
+            country: "India",
+          } : {},
         },
-        items: cartItems.map((item) => ({
-          menu: String(item.id),
-          title: item.name,
-          price: item.price,
+        orderItems: cartItems.map((item) => ({
+          food: String(item.id),
           quantity: item.quantity,
-          subtotal: item.price * item.quantity,
+          name: item.name, // For summary in gateway
+          price: item.price
         })),
-        total: cartItems.reduce((acc, current) => acc + (current.price * current.quantity), 0),
-        status: "placed",
+        totalPrice: cartData?.total || 0,
+        status: "Pending",
         paymentMethod: orderData.paymentMethod || "cod",
       };
 
-      const response = await apiClient.createOrder(completeOrderData);
+      if (orderData.paymentMethod === 'online') {
+        localStorage.setItem("pendingOrder", JSON.stringify(completeOrderData));
+        router.push("/cart/payment-gateway");
+        return;
+      }
+
+      const response = await apiClient.createOrder(completeOrderData as any);
       
-      if (response.success && response.data) {
-        localStorage.setItem("completedOrder", JSON.stringify(response.data));
+      if (response.success) {
+        // Success! Clear the cart so it doesn't show up again
+        await clearCart();
+        const finalOrder = response.order || (response as any).data;
+        localStorage.setItem("completedOrder", JSON.stringify(finalOrder));
         router.push("/cart/checkout/confirmation");
       } else {
         throw new Error(response.message || "Failed to place order");
@@ -116,7 +85,7 @@ export default function CheckoutPage() {
     router.push("/cart");
   };
 
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -127,16 +96,12 @@ export default function CheckoutPage() {
     );
   }
 
-  if (cartItems.length === 0 && !isLoading) {
+  if (cartItems.length === 0 && !loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="bg-white p-8 rounded-lg shadow-md text-center max-w-md">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            Your cart is empty
-          </h2>
-          <p className="text-gray-600 mb-6">
-            Please add some items to your cart before proceeding to checkout.
-          </p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Your cart is empty</h2>
+          <p className="text-gray-600 mb-6">Please add some items to your cart before proceeding to checkout.</p>
           <button
             onClick={() => router.push("/menu")}
             className="bg-orange-600 text-white px-6 py-3 rounded-lg hover:bg-orange-700 transition-colors"
@@ -152,15 +117,8 @@ export default function CheckoutPage() {
     <ErrorBoundary>
       <Checkout
         cartItems={cartItems}
-        // cartTotal={cartTotal}
         onGoBack={handleGoBack}
         onPlaceOrder={handlePlaceOrder}
-        // isPlacingOrder={isPlacingOrder}
-        // defaultValues={{
-        //   name: user?.name || "Guest User",
-        //   email: user?.email || "guest@example.com",
-        //   city: "Raipur",
-        // }}
       />
     </ErrorBoundary>
   );

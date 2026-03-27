@@ -4,7 +4,7 @@ import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Menu, Phone, ShoppingCart, User, Lock, LayoutDashboard, LogOut } from "lucide-react";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 interface HeaderProps {
   cart: { [key: number]: number };
@@ -35,8 +35,22 @@ export function Header({
 }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const router = useRouter();
-  
+  const pathname = usePathname();
+
   const totalItems = Object.values(cart || {}).reduce((sum, qty) => sum + qty, 0) || 0;
+
+  const NAV_LINKS = [
+    { label: "Home",    path: "/"        },
+    { label: "About",   path: "/about"   },
+    { label: "Menu",    path: "/menu"    },
+    { label: "Events",  path: "/events"  },
+    { label: "Gallery", path: "/gallery" },
+    { label: "Blog",    path: "/blog"    },
+    { label: "Contact", path: "/contacts"},
+  ];
+
+  const isActive = (path: string) =>
+    path === "/" ? pathname === "/" : pathname.startsWith(path);
 
   const navigateTo = (path: string) => {
     router.push(path);
@@ -67,19 +81,48 @@ export function Header({
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center space-x-6">
-            <button onClick={() => navigateTo('/')} className="text-gray-700 hover:text-orange-600 transition-colors font-medium">Home</button>
-            <button onClick={() => navigateTo('/about')} className="text-gray-700 hover:text-orange-600 transition-colors font-medium">About</button>
-            <button onClick={() => navigateTo('/menu')} className="text-gray-700 hover:text-orange-600 transition-colors font-medium">Menu</button>
-            <button onClick={() => navigateTo('/events')} className="text-gray-700 hover:text-orange-600 transition-colors font-medium">Events</button>
-            <button onClick={() => navigateTo('/gallery')} className="text-gray-700 hover:text-orange-600 transition-colors font-medium">Gallery</button>
-            <button onClick={() => navigateTo('/blog')} className="text-gray-700 hover:text-orange-600 transition-colors font-medium">Blog</button>
-            <button onClick={() => navigateTo('/contacts')} className="text-gray-700 hover:text-orange-600 transition-colors font-medium">Contact</button>
+            {NAV_LINKS.map(({ label, path }) => {
+              const active = isActive(path);
+              return (
+                <button
+                  key={path}
+                  onClick={() => navigateTo(path)}
+                  className="relative flex flex-col items-center gap-0.5 font-semibold text-[14px] transition-all duration-200"
+                  style={{
+                    color: active ? "transparent" : "#374151",
+                    background: active
+                      ? "linear-gradient(90deg, #EA580C, #F97316)"
+                      : "none",
+                    WebkitBackgroundClip: active ? "text" : "unset",
+                    WebkitTextFillColor: active ? "transparent" : "#374151",
+                  }}
+                >
+                  {label}
+                  {active && (
+                    <span
+                      className="absolute -bottom-1 left-1/2 -translate-x-1/2 rounded-full"
+                      style={{
+                        width: "20px",
+                        height: "3px",
+                        background: "linear-gradient(90deg, #EA580C, #F97316)",
+                        borderRadius: "999px",
+                      }}
+                    />
+                  )}
+                </button>
+              );
+            })}
             
             <Button 
-              className="bg-orange-600 hover:bg-orange-700 text-white font-semibold"
-              onClick={() => navigateTo('/orders')}
+              className="bg-orange-600 hover:bg-orange-700 text-white font-semibold relative"
+              onClick={() => navigateTo('/cart')}
             >
               Order Now
+              {totalItems > 0 && (
+                <Badge className="absolute -top-2 -right-2 bg-red-600 text-white border-none px-1.5 py-0.5 text-[10px] min-w-[18px] h-[18px] flex items-center justify-center rounded-full">
+                  {totalItems}
+                </Badge>
+              )}
             </Button>
 
             {isLoggedIn ? (
@@ -180,14 +223,27 @@ export function Header({
         {/* Mobile Navigation */}
         {isMenuOpen && (
           <div className="lg:hidden py-4 border-t border-gray-200 bg-white">
-            <nav className="flex flex-col space-y-4">
-              <button onClick={() => navigateTo('/')} className="text-gray-700 hover:text-orange-600 transition-colors text-left py-2 font-medium">Home</button>
-              <button onClick={() => navigateTo('/about')} className="text-gray-700 hover:text-orange-600 transition-colors text-left py-2 font-medium">About</button>
-              <button onClick={() => navigateTo('/menu')} className="text-gray-700 hover:text-orange-600 transition-colors text-left py-2 font-medium">Menu</button>
-              <button onClick={() => navigateTo('/events')} className="text-gray-700 hover:text-orange-600 transition-colors text-left py-2 font-medium">Events</button>
-              <button onClick={() => navigateTo('/gallery')} className="text-gray-700 hover:text-orange-600 transition-colors text-left py-2 font-medium">Gallery</button>
-              <button onClick={() => navigateTo('/blog')} className="text-gray-700 hover:text-orange-600 transition-colors text-left py-2 font-medium">Blog</button>
-              <button onClick={() => navigateTo('/contact')} className="text-gray-700 hover:text-orange-600 transition-colors text-left py-2 font-medium">Contact</button>
+            <nav className="flex flex-col space-y-1">
+              {NAV_LINKS.map(({ label, path }) => {
+                const active = isActive(path);
+                return (
+                  <button
+                    key={path}
+                    onClick={() => navigateTo(path)}
+                    className="flex items-center gap-3 text-left py-2.5 px-3 rounded-xl font-medium text-[14px] transition-all duration-200"
+                    style={{
+                      background: active
+                        ? "linear-gradient(135deg, rgba(234,88,12,0.1), rgba(249,115,22,0.06))"
+                        : "transparent",
+                      color: active ? "#EA580C" : "#374151",
+                      borderLeft: active ? "3px solid #F97316" : "3px solid transparent",
+                      fontWeight: active ? 700 : 500,
+                    }}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
               
               <Button 
                 className="bg-orange-600 hover:bg-orange-700 text-white font-semibold w-fit"

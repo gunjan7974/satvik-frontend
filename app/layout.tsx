@@ -1,12 +1,19 @@
 'use client';
 
-import { Inter } from 'next/font/google';
+import { Inter, Playfair_Display } from 'next/font/google';
 import { Providers } from './providers';
 import '@/styles/globals.css';
 import { GlobalShell } from '@/components/GlobalShell';
 import { AuthProvider } from '@/hooks/AuthContext';
+import { CartProvider } from '@/hooks/CartContext';
 
 const inter = Inter({ subsets: ['latin'] });
+const playfair = Playfair_Display({
+  subsets: ['latin'],
+  weight: ['700', '800', '900'],
+  style: ['normal', 'italic'],
+  variable: '--font-playfair',
+});
 
 export default function RootLayout({
   children,
@@ -19,13 +26,15 @@ export default function RootLayout({
         <title>Sattvik Kaleva</title>
         <meta name="description" content="Pure Vegetarian Restaurant" />
       </head>
-      <body className={inter.className}>
+      <body className={`${inter.className} ${playfair.variable}`}>
         <AuthProvider>
-          <Providers>
-            <GlobalShell>
-              {children}
-            </GlobalShell>
-          </Providers>
+          <CartProvider>
+            <Providers>
+              <GlobalShell>
+                {children}
+              </GlobalShell>
+            </Providers>
+          </CartProvider>
         </AuthProvider>
       </body>
     </html>

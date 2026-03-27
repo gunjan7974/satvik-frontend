@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import { defaultMenuItems, MenuItem } from "./Menu";
 
 interface CartItem {
-  id: number;
+  id: string | number;
   name: string;
   description: string;
   price: number;
@@ -22,11 +22,11 @@ interface CartItem {
 
 interface CartProps {
   cartItems: CartItem[];
-  onUpdateQuantity: (itemId: number, newQuantity: number) => void;
-  onRemoveItem: (itemId: number) => void;
+  onUpdateQuantity: (itemId: any, newQuantity: number) => void;
+  onRemoveItem: (itemId: any) => void;
   onProceedToCheckout: () => void;
   onContinueShopping: () => void;
-  onAddToCart?: (itemId: number) => void;
+  onAddToCart?: (itemId: any) => void;
 }
 
 // Available discount codes

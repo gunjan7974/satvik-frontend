@@ -52,16 +52,16 @@ export function PaymentGateway({ orderTotal, orderItems, customerInfo, onPayment
 
   const paymentMethods = [
     {
+      id: 'upi' as PaymentMethod,
+      name: 'UPI / QR Scan',
+      icon: Smartphone,
+      description: 'PhonePe, Google Pay, Paytm'
+    },
+    {
       id: 'card' as PaymentMethod,
       name: 'Credit/Debit Card',
       icon: CreditCard,
       description: 'Visa, Mastercard, RuPay'
-    },
-    {
-      id: 'upi' as PaymentMethod,
-      name: 'UPI',
-      icon: Smartphone,
-      description: 'Google Pay, PhonePe, Paytm'
     },
     {
       id: 'netbanking' as PaymentMethod,
@@ -73,7 +73,7 @@ export function PaymentGateway({ orderTotal, orderItems, customerInfo, onPayment
       id: 'wallet' as PaymentMethod,
       name: 'Digital Wallet',
       icon: Wallet,
-      description: 'Paytm, Amazon Pay'
+      description: 'Amazon Pay, MobiKwik'
     },
     {
       id: 'cod' as PaymentMethod,
@@ -81,6 +81,13 @@ export function PaymentGateway({ orderTotal, orderItems, customerInfo, onPayment
       icon: CheckCircle,
       description: 'Pay when you receive'
     }
+  ];
+
+  const upiApps = [
+    { id: 'phonepe', name: 'PhonePe', color: 'bg-purple-600' },
+    { id: 'gpay', name: 'Google Pay', color: 'bg-blue-600' },
+    { id: 'paytm', name: 'Paytm', color: 'bg-blue-400' },
+    { id: 'bhim', name: 'BHIM UPI', color: 'bg-orange-500' }
   ];
 
   const banks = [
@@ -94,6 +101,8 @@ export function PaymentGateway({ orderTotal, orderItems, customerInfo, onPayment
     'Union Bank of India'
   ];
 
+  const [selectedUpiApp, setSelectedUpiApp] = useState('');
+
   const handlePayment = async () => {
     setIsProcessing(true);
     setError('');
@@ -106,8 +115,8 @@ export function PaymentGateway({ orderTotal, orderItems, customerInfo, onPayment
         return;
       }
     } else if (selectedMethod === 'upi') {
-      if (!upiId) {
-        setError('Please enter UPI ID');
+      if (!selectedUpiApp && !upiId) {
+        setError('Please select a UPI app or enter UPI ID');
         setIsProcessing(false);
         return;
       }
@@ -123,14 +132,14 @@ export function PaymentGateway({ orderTotal, orderItems, customerInfo, onPayment
     try {
       await new Promise(resolve => setTimeout(resolve, 3000));
       
-      // Simulate random success/failure for demo (90% success rate)
-      const isSuccess = Math.random() > 0.1;
+      // Simulate random success/failure for demo (95% success rate)
+      const isSuccess = Math.random() > 0.05;
       
       if (isSuccess) {
         setPaymentStatus('success');
         const paymentData = {
           transactionId: `TXN${Date.now()}`,
-          paymentMethod: selectedMethod,
+          paymentMethod: selectedMethod === 'upi' ? `upi_${selectedUpiApp || 'id'}` : selectedMethod,
           amount: totalAmount,
           timestamp: new Date().toISOString(),
           status: 'success'
@@ -154,7 +163,7 @@ export function PaymentGateway({ orderTotal, orderItems, customerInfo, onPayment
   const generatePaymentReceipt = () => {
     const paymentData = {
       transactionId: `TXN${Date.now()}`,
-      paymentMethod: selectedMethod,
+      paymentMethod: selectedMethod === 'upi' ? `UPI - ${selectedUpiApp || upiId}` : selectedMethod,
       amount: totalAmount,
       timestamp: new Date().toISOString(),
       status: 'success'
@@ -405,19 +414,58 @@ Your order is being prepared with care.
                 )}
 
                 {selectedMethod === 'upi' && (
-                  <div className="space-y-4">
+                  <div className="space-y-6">
                     <div>
-                      <Label htmlFor="upiId">UPI ID</Label>
+                      <Label className="block mb-3">Pay using UPI App</Label>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        {upiApps.map((app) => (
+                          <button
+                            key={app.id}
+                            type="button"
+                            onClick={() => {
+                              setSelectedUpiApp(app.id);
+                              setUpiId('');
+                            }}
+                            className={`flex flex-col items-center p-3 border rounded-xl transition-all ${
+                              selectedUpiApp === app.id 
+                                ? 'border-orange-500 bg-orange-50 ring-2 ring-orange-200' 
+                                : 'hover:border-gray-300 hover:bg-gray-50'
+                            }`}
+                          >
+                            <div className={`w-10 h-10 rounded-lg ${app.color} mb-2 flex items-center justify-center text-white font-bold text-xs uppercase shadow-sm`}>
+                              {app.name.charAt(0)}
+                            </div>
+                            <span className="text-[10px] font-medium text-gray-700">{app.name}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <div className="relative py-2">
+                      <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-center">
+                        <span className="bg-white px-3 text-[10px] text-gray-400 uppercase tracking-widest font-bold">Or</span>
+                      </div>
+                      <Separator />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="upiId" className="text-sm font-semibold">Enter UPI ID</Label>
                       <Input
                         id="upiId"
                         placeholder="yourname@paytm"
                         value={upiId}
-                        onChange={(e) => setUpiId(e.target.value)}
+                        onChange={(e) => {
+                          setUpiId(e.target.value);
+                          setSelectedUpiApp('');
+                        }}
+                        className="mt-1"
                       />
                     </div>
-                    <div className="bg-blue-50 p-4 rounded-lg">
-                      <p className="text-sm text-blue-700">
-                        You will receive a payment request on your UPI app. Please approve it to complete the transaction.
+                    
+                    <div className="bg-blue-50 p-4 rounded-lg flex items-start space-x-3">
+                      <AlertCircle className="h-5 w-5 text-blue-500 mt-0.5" />
+                      <p className="text-xs text-blue-700 leading-relaxed">
+                        You will receive a payment request on your selected UPI app. Please approve it to complete the transaction safely.
                       </p>
                     </div>
                   </div>

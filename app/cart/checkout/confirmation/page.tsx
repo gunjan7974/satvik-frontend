@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { OrderConfirmation } from "@/components/OrderConfirmation";
 import { ErrorBoundary } from "@/components/error-boundary";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/AuthContext";
 
 // Define the expected order data structure
 interface OrderData {
@@ -65,23 +65,39 @@ export default function OrderConfirmationPage() {
           return;
         }
 
-        const parsedOrder = JSON.parse(completedOrder) as OrderData;
+        const parsedOrder = JSON.parse(completedOrder);
         console.log('Parsed order data:', parsedOrder);
         
-        // Validate that we have the required order data
-        if (!parsedOrder.items || !parsedOrder.name) {
-          console.error('Missing required order data:', {
-            hasItems: !!parsedOrder.items,
-            hasName: !!parsedOrder.name,
-            orderData: parsedOrder
-          });
-          setError('Invalid order data. Please place a new order.');
-          localStorage.removeItem('completedOrder');
-          router.push('/cart');
-          return;
-        }
+        // Map backend order to OrderData format if needed
+        const mappedOrder: OrderData = {
+          _id: parsedOrder._id,
+          orderNumber: parsedOrder.orderNumber || parsedOrder._id?.substring(0, 8),
+          orderDate: parsedOrder.createdAt || new Date().toISOString(),
+          status: parsedOrder.status || 'placed',
+          name: parsedOrder.customer?.name || parsedOrder.name || 'Guest',
+          email: parsedOrder.customer?.email || parsedOrder.email || '',
+          phone: parsedOrder.customer?.phone || parsedOrder.phone || '',
+          deliveryType: (parsedOrder.deliveryType || (parsedOrder.customer?.address?.line1 ? 'delivery' : 'pickup')) as 'delivery' | 'pickup',
+          address: parsedOrder.customer?.address?.line1 || parsedOrder.address || '',
+          city: parsedOrder.customer?.address?.city || parsedOrder.city || '',
+          paymentMethod: (parsedOrder.paymentMethod || 'cod') as 'cod' | 'online',
+          items: (parsedOrder.items || []).map((item: any) => ({
+            id: item.menu || item.id,
+            name: item.title || item.name,
+            price: item.price,
+            quantity: item.quantity,
+            subtotal: item.subtotal || (item.price * item.quantity)
+          })),
+          summary: parsedOrder.summary || {
+            subtotal: parsedOrder.totalPrice || parsedOrder.total || 0,
+            gst: 0,
+            deliveryFee: 0,
+            total: parsedOrder.totalPrice || parsedOrder.total || 0,
+            totalItems: (parsedOrder.orderItems || parsedOrder.items || []).reduce((acc: number, item: any) => acc + (item.quantity || 0), 0)
+          }
+        };
 
-        setOrderData(parsedOrder);
+        setOrderData(mappedOrder);
         setError(null);
       } catch (err) {
         console.error('Error loading order details:', err);
