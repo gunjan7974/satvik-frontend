@@ -163,7 +163,7 @@ const mockOrders: Order[] = [
     ],
     total: 680,
     status: "preparing",
-    orderDate: new Date(),
+    orderDate: new Date('2024-12-25T10:00:00'),
     deliveryAddress: "123 Main St, Raipur, Chhattisgarh",
     phone: "9876543210",
     paymentMethod: "Online",
@@ -178,7 +178,7 @@ const mockOrders: Order[] = [
     ],
     total: 210,
     status: "out_for_delivery",
-    orderDate: new Date(Date.now() - 30 * 60 * 1000),
+    orderDate: new Date('2024-12-25T09:30:00'),
     deliveryAddress: "456 Park St, Raipur, Chhattisgarh",
     phone: "9876543211",
     paymentMethod: "COD",
@@ -324,7 +324,7 @@ export default function AnimatedDashboard({
       try {
         setIsLoadingImage(true);
       } catch (error) {
-        imageUrl = 'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbmRpYW4lMjBmb29kfGVufDF8fHx8MTc1NzQxODkyNXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral';
+        imageUrl = "https://placehold.co/800x600?text=Food";
       } finally {
         setIsLoadingImage(false);
       }
@@ -412,7 +412,7 @@ export default function AnimatedDashboard({
       try {
         setIsLoadingImage(true);
       } catch (error) {
-        imageUrl = 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb29raW5nfGVufDF8fHx8MTc1NzQxOTEwOXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral';
+        imageUrl = "https://placehold.co/800x600?text=Blog";
       } finally {
         setIsLoadingImage(false);
       }

@@ -22,7 +22,7 @@ export default function BlogPage() {
           author: p.author,
           date: p.createdAt || new Date().toISOString(),
           category: p.category,
-          image: p.image ? `http://localhost:5000${p.image}` : "https://via.placeholder.com/800x600?text=No+Image",
+          image: p.image ? `http://localhost:5000${p.image}` : "https://placehold.co/800x600?text=No+Image",
           views: p.views || 0,
           featured: p.featured || false,
           type: p.type || 'article',

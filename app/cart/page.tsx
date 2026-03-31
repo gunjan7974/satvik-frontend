@@ -19,13 +19,13 @@ export default function CartPage() {
     
     return {
       id: typeof food === 'string' ? food : food?._id,
-      name: typeof food === 'string' ? item.title : food?.title,
+      name: typeof food === 'string' ? item.title : food?.name,
       price: typeof food === 'string' ? item.price : food?.price,
       quantity: item.quantity,
-      image: foodImage || "https://via.placeholder.com/300?text=No+Image",
+      image: foodImage || "https://placehold.co/300?text=No+Image",
       subtotal: item.subtotal,
       description: typeof food !== 'string' ? food?.description : "",
-      category: typeof food !== 'string' ? food?.category : "General",
+      category: typeof food !== 'string' ? (food?.category?.title || food?.category) : "General",
     };
   }) || [];
 

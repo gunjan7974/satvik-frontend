@@ -37,7 +37,7 @@ export function GlobalShell({ children }: GlobalShellProps) {
     onLogoutClick: handleLogout,
     onAdminClick: () => router.push('/admin'),
     onDashboardClick: () => {
-      const role = user?.role || 'user';
+      const role = (user as any)?.role || 'user';
       if (role === 'admin') router.push('/admin');
       else if (role === 'vendor') router.push('/vendor/dashboard');
       else if (role === 'sales') router.push('/sales/dashboard');
@@ -81,7 +81,7 @@ export function GlobalShell({ children }: GlobalShellProps) {
 
   return (
     <div className="min-h-screen flex flex-col">
-        <Header {...headerProps} />
+      <Header {...headerProps} />
       <main className="flex-1">{children}</main>
       <Footer />
 

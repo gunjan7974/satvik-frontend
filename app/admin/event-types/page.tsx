@@ -16,6 +16,8 @@ export default function EventTypesPage() {
   const [isAdding, setIsAdding] = useState(false);
   const [newName, setNewName] = useState("");
   const [newPrice, setNewPrice] = useState("");
+  const [newImage, setNewImage] = useState<File | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     fetchTypes();
@@ -36,16 +38,22 @@ export default function EventTypesPage() {
   const handleAdd = async () => {
     if (!newName || !newPrice) return;
     try {
-      const newItem = await apiClient.createEventType({
-        name: newName,
-        basePrice: parseFloat(newPrice)
-      });
-      setTypes([...types, newItem]);
+      setIsSubmitting(true);
+      const formData = new FormData();
+      formData.append('name', newName);
+      formData.append('basePrice', newPrice);
+      if (newImage) formData.append('image', newImage);
+
+      await apiClient.createEventType(formData);
+      fetchTypes();
       setNewName("");
       setNewPrice("");
+      setNewImage(null);
       setIsAdding(false);
-    } catch (error) {
-      alert("Failed to add event type");
+    } catch (error: any) {
+      alert("Failed to add event type: " + error.message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -97,10 +105,17 @@ export default function EventTypesPage() {
               <TableBody>
                 {isAdding && (
                   <TableRow className="bg-orange-50/50">
-                    <TableCell></TableCell>
                     <TableCell>
                       <Input 
-                        placeholder="e.g. Anniversary" 
+                        type="file" 
+                        className="text-[10px] w-[150px] p-1 h-auto"
+                        onChange={(e) => setNewImage(e.target.files?.[0] || null)}
+                        accept="image/*"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Input 
+                        placeholder="e.g. Wedding" 
                         value={newName} 
                         onChange={(e) => setNewName(e.target.value)} 
                       />

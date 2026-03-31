@@ -1,5 +1,7 @@
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 import { Search, MapPin, ChevronRight, Star, Clock, Utensils, Calendar, TrendingUp, Gift, Sparkles, Shield, Truck, Heart } from 'lucide-react';
+import { Hero } from './Hero';
 import { Button } from './ui/button';
 // import { Input } from './ui/input';
 import { Badge } from './ui/badge';
@@ -24,75 +26,40 @@ export function HomePage({
 }: HomePageProps) {
   const [searchQuery, setSearchQuery] = useState('');
 
-  const popularRestaurants = liveMenus || [
-    {
-      id: 1,
-      name: 'Sattvik Kaleva - Main',
-      cuisine: 'Pure Vegetarian • North Indian',
-      rating: 4.8,
-      reviews: '2.4k',
-      deliveryTime: '20-30 mins',
-      distance: '1.2 km',
-      image: 'https://images.unsplash.com/photo-1672477179695-7276b0602fa9?crop=entropy&cs=tinysrgb&fit=crop&w=800&h=600',
-      offer: '20% OFF up to ₹100',
-      featured: true
-    },
-    {
-      id: 2,
-      name: 'Sattvik Express',
-      cuisine: 'Quick Bites • Street Food',
-      rating: 4.6,
-      reviews: '1.8k',
-      deliveryTime: '15-25 mins',
-      distance: '0.8 km',
-      image: 'https://images.unsplash.com/photo-1613292443284-8d10ef9383fe?crop=entropy&cs=tinysrgb&fit=crop&w=800&h=600',
-      offer: 'Free Delivery',
-      trending: true
-    },
-    {
-      id: 3,
-      name: 'Sattvik Sweets & More',
-      cuisine: 'Desserts • Traditional Sweets',
-      rating: 4.9,
-      reviews: '3.1k',
-      deliveryTime: '25-35 mins',
-      distance: '1.5 km',
-      image: 'https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?crop=entropy&cs=tinysrgb&fit=crop&w=800&h=600',
-      offer: 'Buy 1 Get 1 Free'
-    }
-  ];
 
   const upcomingEvents = liveEvents || [
     {
       id: 1,
-      title: 'Wedding Catering Special',
-      date: 'Nov 15, 2025',
-      time: '7:00 PM',
-      category: 'Wedding',
-      guests: '200+ Guests',
-      image: 'https://images.unsplash.com/photo-1749305447380-dfd48dd2ddbe?crop=entropy&cs=tinysrgb&fit=crop&w=800&h=600',
-      price: 'From ₹599/plate',
+      title: 'Wedding',
+      date: 'Available Anytime',
+      time: 'Book Now',
+      category: 'Event Category',
+      guests: 'Flexible',
+      image: '/images/event_wedding.png',
+      price: 'Starting ₹200000',
       featured: true
     },
     {
       id: 2,
-      title: 'Corporate Event Planning',
-      date: 'Nov 20, 2025',
-      time: '6:30 PM',
-      category: 'Corporate',
-      guests: '150+ Guests',
-      image: 'https://images.unsplash.com/photo-1760080839321-a6aa581c3ef3?crop=entropy&cs=tinysrgb&fit=crop&w=800&h=600',
-      price: 'From ₹799/plate'
+      title: 'Birthday',
+      date: 'Available Anytime',
+      time: 'Book Now',
+      category: 'Event Category',
+      guests: 'Flexible',
+      image: '/images/event_birthday.png',
+      price: 'Starting ₹30000',
+      featured: true
     },
     {
       id: 3,
-      title: 'Festival Celebration',
-      date: 'Nov 25, 2025',
-      time: '5:00 PM',
-      category: 'Festival',
-      guests: '300+ Guests',
-      image: 'https://images.unsplash.com/photo-1531058020387-3be344556be6?crop=entropy&cs=tinysrgb&fit=crop&w=800&h=600',
-      price: 'From ₹449/plate'
+      title: 'Corporate Event',
+      date: 'Available Anytime',
+      time: 'Book Now',
+      category: 'Event Category',
+      guests: 'Flexible',
+      image: '/images/event_corporate.png',
+      price: 'Starting ₹75000',
+      featured: true
     }
   ];
 
@@ -160,92 +127,10 @@ export function HomePage({
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
 
-      {/* Hero Section */}
-     <section 
-  className="relative overflow-hidden pt-20 pb-32"
-  style={{
-    background: 'linear-gradient(90deg, #f97316 0%, #ec4899 50%, #9333ea 100%)',
-    paddingTop: '5rem',
-    paddingBottom: '8rem'
-  }}
->
-  {/* Overlay */}
-  <div 
-    className="absolute inset-0"
-    style={{ backgroundColor: 'rgba(0, 0, 0, 0.1)' }}
-  ></div>
-  
-  {/* Animated Background Elements */}
-  <div className="absolute inset-0 overflow-hidden">
-    <div 
-      className="absolute -top-1/2 -right-1/4 w-96 h-96 rounded-full blur-3xl"
-      style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
-    ></div>
-    <div 
-      className="absolute -bottom-1/2 -left-1/4 w-96 h-96 rounded-full blur-3xl"
-      style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
-    ></div>
-  </div>
-
-  <div className="container mx-auto px-4 relative z-10 text-center">
-    {/* Main Heading */}
-    <h1 
-      className="text-4xl md:text-6xl font-black text-white mb-6 drop-shadow-2xl leading-tight"
-    >
-      Order Fresh Food or <br className="hidden md:block" />Book Memorable Events
-    </h1>
-
-    {/* Subtitle */}
-    <p 
-      className="text-white/90 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed px-4"
-    >
-      All from Sattvik Kaleva — Your trusted partner for delicious vegetarian cuisine 
-      and exceptional event experiences
-    </p>
-
-    {/* Action Buttons */}
-    <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12 px-6">
-      <button
-        onClick={onOrderFoodClick}
-        style={{
-          background: '#ffffff',
-          color: '#f97316',
-          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
-        }}
-        className="flex items-center justify-center gap-3 text-base md:text-lg font-bold px-8 py-5 md:py-6 rounded-2xl transition-all duration-300 hover:scale-105 active:scale-95"
-      >
-        <Utensils style={{ width: '20px', height: '20px' }} />
-        Order Food
-      </button>
-
-      <button
-        onClick={onExploreEventsClick}
-        style={{
-          border: '2px solid #ffffff',
-          color: '#ffffff',
-          background: 'transparent',
-        }}
-        className="flex items-center justify-center gap-3 text-base md:text-lg font-bold px-8 py-5 md:py-6 rounded-2xl transition-all duration-300 hover:bg-white hover:text-orange-600 active:scale-95"
-      >
-        <Calendar style={{ width: '20px', height: '20px' }} />
-        Explore Events
-      </button>
-    </div>
-  </div>
-
-  {/* Scroll Indicator */}
-  <div className="absolute bottom-6 left-1/2 -translate-x-1/2 animate-bounce hidden md:block">
-    <div 
-      className="w-6 h-10 rounded-full flex justify-center"
-      style={{ border: '2px solid rgba(255, 255, 255, 0.7)' }}
-    >
-      <div 
-        className="w-1 h-3 rounded-full mt-2"
-        style={{ background: 'rgba(255, 255, 255, 0.7)' }}
-      ></div>
-    </div>
-  </div>
-</section>
+      <Hero 
+        onOrderFoodClick={onOrderFoodClick}
+        onExploreEventsClick={onExploreEventsClick}
+      />
 
 
       {/* Features Section */}
@@ -298,228 +183,91 @@ export function HomePage({
 </section>
 
       {/* Promotional Offers */}
-    <section className="py-20 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-  <div className="container mx-auto px-4">
-    <div className="text-center mb-16">
-      <div className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-full px-6 py-3 border border-white/20 mb-6">
-        <Gift className="h-6 w-6 text-amber-400" />
-        <span className="text-amber-400 font-semibold">Limited Time Offers</span>
-      </div>
-      <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
-        Exclusive <span className="bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">Deals</span>
-      </h2>
-      <p className="text-slate-300 text-xl max-w-2xl mx-auto">
-        Don't miss out on these amazing offers crafted just for you
-      </p>
-    </div>
+    <section className="py-24 bg-[#0a0a0c] relative overflow-hidden">
+      {/* Decorative Background Circles */}
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-orange-600/10 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2" />
+      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-indigo-600/10 blur-[120px] rounded-full translate-y-1/2 -translate-x-1/2" />
 
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      {/* First Offer Card - Orange Theme */}
-      <div 
-        className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl hover:shadow-3xl transition-all duration-500 transform hover:-translate-y-2"
-        style={{
-          background: 'linear-gradient(135deg, #f59e0b 0%, #f97316 100%)'
-        }}
-      >
-        {/* Background Pattern */}
-        <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 rounded-full -translate-y-16 translate-x-16"></div>
-        <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/20 rounded-full translate-y-12 -translate-x-12"></div>
-        
-        <div className="relative z-10">
-          <div className="flex items-center justify-between mb-6">
-            <div className="text-3xl">🎉</div>
-            <div className="bg-white/30 text-white border-0 backdrop-blur-sm font-bold px-3 py-1 rounded-full text-sm">
-              FIRST30
-            </div>
-          </div>
+      <div className="container mx-auto px-4 relative z-10">
+        <div className="text-center mb-20">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="inline-flex items-center gap-3 bg-white/5 backdrop-blur-xl rounded-full px-6 py-2 border border-white/10 mb-6"
+          >
+            <Sparkles className="h-5 w-5 text-amber-400" />
+            <span className="text-zinc-400 text-sm font-bold tracking-widest uppercase">Limited Time Privileges</span>
+          </motion.div>
           
-          <h3 className="text-2xl font-bold mb-3">First Order Discount</h3>
-          <p className="text-white/95 mb-6 leading-relaxed">Get 30% off on your first order above ₹199</p>
-          
-          <div className="flex items-center justify-between">
-            <span className="text-white/90 text-sm">Valid until Dec 31, 2025</span>
-            <button 
-              onClick={onOrderFoodClick}
-              className="bg-white text-orange-600 hover:bg-orange-50 font-bold rounded-xl px-6 py-2 shadow-lg hover:shadow-xl transition-all duration-300"
-            >
-              Use Offer
-            </button>
-          </div>
+          <h2 className="text-4xl md:text-6xl font-black text-white mb-6 tracking-tight">
+            Curated <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-200">Exclusives</span>
+          </h2>
+          <p className="text-zinc-500 text-lg max-w-2xl mx-auto leading-relaxed">
+            Unlocking premium experiences with special rewards designed for our most valued guests.
+          </p>
         </div>
-      </div>
 
-      {/* Second Offer Card - Blue Theme */}
-      <div 
-        className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl hover:shadow-3xl transition-all duration-500 transform hover:-translate-y-2"
-        style={{
-          background: 'linear-gradient(135deg, #3b82f6 0%, #6366f1 100%)'
-        }}
-      >
-        {/* Background Pattern */}
-        <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 rounded-full -translate-y-16 translate-x-16"></div>
-        <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/20 rounded-full translate-y-12 -translate-x-12"></div>
-        
-        <div className="relative z-10">
-          <div className="flex items-center justify-between mb-6">
-            <div className="text-3xl">🚚</div>
-            <div className="bg-white/30 text-white border-0 backdrop-blur-sm font-bold px-3 py-1 rounded-full text-sm">
-              FREEDEL
-            </div>
-          </div>
-          
-          <h3 className="text-2xl font-bold mb-3">Free Delivery</h3>
-          <p className="text-white/95 mb-6 leading-relaxed">Zero delivery charges on orders above ₹299</p>
-          
-          <div className="flex items-center justify-between">
-            <span className="text-white/90 text-sm">Valid until Jan 15, 2026</span>
-            <button 
-              onClick={onOrderFoodClick}
-              className="bg-white text-blue-600 hover:bg-blue-50 font-bold rounded-xl px-6 py-2 shadow-lg hover:shadow-xl transition-all duration-300"
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+          {promoOffers.map((offer, idx) => (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: idx * 0.1 }}
+              whileHover={{ y: -10 }}
+              className="group relative"
             >
-              Use Offer
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Third Offer Card - Green Theme */}
-      <div 
-        className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl hover:shadow-3xl transition-all duration-500 transform hover:-translate-y-2"
-        style={{
-          background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
-        }}
-      >
-        {/* Background Pattern */}
-        <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 rounded-full -translate-y-16 translate-x-16"></div>
-        <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/20 rounded-full translate-y-12 -translate-x-12"></div>
-        
-        <div className="relative z-10">
-          <div className="flex items-center justify-between mb-6">
-            <div className="text-3xl">🎊</div>
-            <div className="bg-white/30 text-white border-0 backdrop-blur-sm font-bold px-3 py-1 rounded-full text-sm">
-              WEEKEND100
-            </div>
-          </div>
-          
-          <h3 className="text-2xl font-bold mb-3">Weekend Special</h3>
-          <p className="text-white/95 mb-6 leading-relaxed">Flat ₹100 off on all weekend orders</p>
-          
-          <div className="flex items-center justify-between">
-            <span className="text-white/90 text-sm">Every Saturday & Sunday</span>
-            <button 
-              onClick={onOrderFoodClick}
-              className="bg-white text-green-600 hover:bg-green-50 font-bold rounded-xl px-6 py-2 shadow-lg hover:shadow-xl transition-all duration-300"
-            >
-              Use Offer
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-      {/* Popular Restaurants */}
-      <section className="py-16 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between mb-12">
-            <div>
-              <h2 className="text-3xl md:text-5xl font-black text-slate-900">
-                <span className="bg-gradient-to-r from-orange-600 to-amber-700 bg-clip-text text-transparent">Popular Restaurants</span>
-              </h2>
-            </div>
-            <Button 
-              variant="ghost" 
-              onClick={onOrderFoodClick} 
-              className="text-orange-600 font-bold hidden md:flex"
-            >
-              View All <ChevronRight className="ml-1 h-4 w-4" />
-            </Button>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {popularRestaurants.map((restaurant) => (
-              <Card 
-                key={restaurant.id}
-                onClick={onRestaurantClick}
-                className="group relative overflow-hidden bg-white rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 cursor-pointer border border-slate-200 hover:border-orange-200 transform hover:-translate-y-2"
-              >
-                {/* Image Container */}
-                <div className="relative h-48 overflow-hidden">
-                  <img
-                    src={restaurant.image}
-                    alt={restaurant.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
-                  
-                  {/* Badges */}
-                  <div className="absolute top-4 left-4 flex flex-col gap-2">
-                    {restaurant.offer && (
-                      <Badge className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-0 font-bold shadow-lg">
-                        {restaurant.offer}
-                      </Badge>
-                    )}
-                    {restaurant.featured && (
-                      <Badge className="bg-gradient-to-r from-amber-500 to-orange-600 text-white border-0 font-bold shadow-lg">
-                        Featured
-                      </Badge>
-                    )}
-                    {restaurant.trending && (
-                      <Badge className="bg-gradient-to-r from-green-600 to-emerald-600 text-white border-0 font-bold shadow-lg">
-                        Trending
-                      </Badge>
-                    )}
-                  </div>
-
-                  {/* Rating */}
-                  <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm rounded-2xl px-3 py-2 shadow-lg">
-                    <div className="flex items-center gap-1">
-                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                      <span className="font-bold text-slate-900">{restaurant.rating}</span>
-                      <span className="text-slate-500 text-sm">({restaurant.reviews})</span>
-                    </div>
-                  </div>
+              <div className={`absolute inset-0 ${offer.bgColor} opacity-20 blur-3xl rounded-[40px] group-hover:opacity-40 transition-opacity duration-500`} />
+              
+              <div className="relative h-full bg-zinc-900/40 backdrop-blur-3xl border border-white/10 rounded-[40px] p-10 overflow-hidden flex flex-col items-center text-center">
+                {/* Decorative Pattern */}
+                <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-16 translate-x-16" />
+                
+                <div className="mb-8 relative">
+                   <div className="w-20 h-20 bg-zinc-800 rounded-3xl flex items-center justify-center text-4xl shadow-2xl relative z-10 group-hover:scale-110 transition-transform duration-500">
+                     {offer.icon}
+                   </div>
+                   <motion.div 
+                     animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
+                     transition={{ duration: 3, repeat: Infinity }}
+                     className="absolute inset-0 bg-white/20 blur-xl rounded-full" 
+                   />
                 </div>
 
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between mb-3">
-                    <h3 className="text-xl font-bold text-slate-900 group-hover:text-orange-600 transition-colors duration-300">
-                      {restaurant.name}
-                    </h3>
+                <Badge className="bg-orange-600/20 text-orange-400 border-orange-600/30 font-black px-4 py-1.5 rounded-full text-xs mb-6 tracking-[0.2em]">
+                  {offer.code}
+                </Badge>
+                
+                <h3 className="text-2xl font-black text-white mb-4 group-hover:text-orange-400 transition-colors">
+                  {offer.title}
+                </h3>
+                
+                <p className="text-zinc-400 mb-10 text-sm leading-relaxed">
+                  {offer.description}
+                </p>
+                
+                <div className="mt-auto w-full pt-8 border-t border-white/5 flex flex-col gap-4">
+                  <div className="flex items-center justify-center gap-2 text-zinc-500 text-[10px] font-bold uppercase tracking-widest">
+                    <Clock className="h-3 w-3" />
+                    {offer.expiry}
                   </div>
                   
-                  <p className="text-slate-600 mb-4 leading-relaxed">{restaurant.cuisine}</p>
-                  
-                  <div className="flex items-center justify-between text-sm">
-                    <div className="flex items-center gap-4 text-slate-600">
-                      <div className="flex items-center gap-1">
-                        <Clock className="h-4 w-4" />
-                        <span className="font-medium">{restaurant.deliveryTime}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <MapPin className="h-4 w-4" />
-                        <span className="font-medium">{restaurant.distance}</span>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          {/* Mobile View All Button */}
-          <div className="flex justify-center mt-12 md:hidden">
-            <Button 
-              onClick={onOrderFoodClick}
-              className="bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white font-bold rounded-xl px-12 py-6 text-lg"
-              style={{padding: '1.5rem 2.5rem'}}
-            >
-              View All Restaurants
-            </Button>
-          </div>
+                  <Button 
+                    onClick={onOrderFoodClick}
+                    className="w-full bg-white hover:bg-orange-600 text-black hover:text-white font-black rounded-2xl py-6 transition-all shadow-xl shadow-black/40"
+                  >
+                    Claim Privilege
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+          ))}
         </div>
-      </section>
+      </div>
+    </section>
+
 
       {/* Upcoming Events */}
       <section className="py-20 bg-gradient-to-br from-slate-50 via-white to-slate-100">

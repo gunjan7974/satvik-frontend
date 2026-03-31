@@ -441,9 +441,14 @@ class ApiClient {
       }
 
       if (!response.ok) {
-        const errorMessage = typeof data === 'object'
-          ? data.message || data.error || `HTTP error! status: ${response.status}`
-          : `HTTP error! status: ${response.status}`;
+        let errorMessage = `HTTP error! status: ${response.status}`;
+        
+        if (data && typeof data === 'object') {
+          errorMessage = data.message || data.error || errorMessage;
+        } else if (typeof data === 'string' && data.length > 0) {
+          errorMessage = data;
+        }
+        
         throw new Error(errorMessage);
       }
 
@@ -560,38 +565,33 @@ class ApiClient {
 
   // ==================== CART APIs ====================
   async getCart(): Promise<CartResponse> {
-    const data = await this.request<any>('/cart');
-    return { success: true, cart: data };
+    return this.request<CartResponse>('/cart');
   }
 
   async addToCart(foodId: string, quantity: number = 1): Promise<CartResponse> {
-    const data = await this.request<any>('/cart', {
+    return this.request<CartResponse>('/cart', {
       method: 'POST',
       body: JSON.stringify({ foodId, quantity })
     });
-    return { success: true, cart: data };
   }
 
   async updateCartItem(foodId: string, action: 'increase' | 'decrease'): Promise<CartResponse> {
-    const data = await this.request<any>(`/cart/${foodId}`, {
+    return this.request<CartResponse>(`/cart/${foodId}`, {
       method: 'PUT',
       body: JSON.stringify({ action })
     });
-    return { success: true, cart: data };
   }
 
   async removeFromCart(foodId: string): Promise<CartResponse> {
-    const data = await this.request<any>(`/cart/${foodId}`, {
+    return this.request<CartResponse>(`/cart/${foodId}`, {
       method: 'DELETE'
     });
-    return { success: true, cart: data };
   }
 
   async clearCart(): Promise<CartResponse> {
-    const data = await this.request<any>('/cart', {
+    return this.request<CartResponse>('/cart', {
       method: 'DELETE'
     });
-    return { success: true, cart: data };
   }
 
   // Helper method to get cart item count
@@ -1214,7 +1214,24 @@ class ApiClient {
     return this.request<EventType[]>('/events/types');
   }
 
-  async createEventType(data: { name: string; basePrice: number }): Promise<EventType> {
+  async createEventType(data: FormData | { name: string; basePrice: number }) {
+    if (data instanceof FormData) {
+      const url = `${this.baseUrl}/events/types`;
+      const token = this.getAuthToken();
+      const headers: any = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const res = await fetch(url, {
+        method: 'POST',
+        body: data,
+        headers
+      });
+
+      const resData = await res.json();
+      if (!res.ok) throw new Error(resData.message || 'Failed to create event type');
+      return resData;
+    }
+
     return this.request<EventType>('/events/types', {
       method: 'POST',
       body: JSON.stringify(data)

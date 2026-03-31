@@ -2,23 +2,27 @@
 
 import { useState, useEffect } from "react";
 import { EventListing } from "../../components/Events";
-import { useRouter } from "next/navigation";
+import { EventDetail } from "../../components/EventDetail";
+import { EventBooking } from "../../components/EventBooking";
+import { useRouter, useSearchParams } from "next/navigation";
 import { apiClient } from "../../lib/api";
 import { Loader2 } from "lucide-react";
+import ClientLayout from "../client-layout";
 
 export default function EventsPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [events, setEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [view, setView] = useState<"listing" | "details" | "booking">("listing");
+  const [selectedEventId, setSelectedEventId] = useState<string | number | null>(null);
 
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const data = await apiClient.getEventTypes(); // This returns all available event categories
+        const data = await apiClient.getEventTypes();
         const mappedEvents = data.map((e: any) => {
           const name = e.name || e.title || "";
-          
-          // Better category mapping based on name
           let category = 'Celebration';
           if (name.toLowerCase().includes('wedding')) category = 'Wedding';
           else if (name.toLowerCase().includes('corporate')) category = 'Corporate';
@@ -26,15 +30,12 @@ export default function EventsPage() {
           else if (name.toLowerCase().includes('festival') || name.toLowerCase().includes('navratri')) category = 'Festival';
           else if (name.toLowerCase().includes('party')) category = 'Birthday';
 
-          // Robust image handling
           let imageUrl = e.image;
-          const backendUrl = "http://localhost:5000"; // Dynamic or local backend
-          
+          const backendUrl = "http://localhost:5000";
           if (imageUrl && !imageUrl.startsWith('http')) {
             imageUrl = `${backendUrl}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`;
           }
 
-          // Smart fallbacks based on category/name
           if (!imageUrl || imageUrl.includes('placeholder') || imageUrl === backendUrl) {
             if (category === 'Wedding') imageUrl = "https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=600";
             else if (category === 'Corporate') imageUrl = "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600";
@@ -47,7 +48,6 @@ export default function EventsPage() {
             id: e._id,
             name: name,
             date: 'Available Now',
-            dateObj: new Date(),
             time: 'Flexible Timing',
             location: 'Sattvik Kaleva',
             attendees: 0,
@@ -72,7 +72,17 @@ export default function EventsPage() {
   }, []);
 
   const handleEventClick = (eventId: string | number) => {
-    router.push(`/events/event-booking?eventId=${eventId}`);
+    setSelectedEventId(eventId);
+    setView("details");
+  };
+
+  const handleBookNow = () => {
+    setView("booking");
+  };
+
+  const handleBookingSubmit = (bookingData: any) => {
+    console.log("Booking submitted:", bookingData);
+    router.push("/events/event-booking/payment");
   };
 
   if (loading) {
@@ -85,12 +95,31 @@ export default function EventsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <EventListing 
-        onEventClick={handleEventClick as any} 
-        onBack={() => router.back()} 
-        externalEvents={events} // Pass the live data
-      />
-    </div>
+    <ClientLayout>
+      <div className="min-h-screen bg-gray-50">
+        {view === "listing" && (
+          <EventListing 
+            onEventClick={handleEventClick as any} 
+            onBack={() => router.push("/")} 
+            externalEvents={events}
+          />
+        )}
+
+        {view === "details" && selectedEventId && (
+          <EventDetail 
+            eventId={selectedEventId as any} 
+            onBack={() => setView("listing")}
+            onBookNow={handleBookNow}
+          />
+        )}
+
+        {view === "booking" && (
+          <EventBooking 
+            onGoBack={() => setView("details")}
+            onBookingSubmit={handleBookingSubmit}
+          />
+        )}
+      </div>
+    </ClientLayout>
   );
 }

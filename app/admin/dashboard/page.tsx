@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { apiClient } from '@/lib/api';
+import { Loader2 } from 'lucide-react';
 import AnimatedDashboard from '@/components/AdminPanel';
 
 // Mock initial data
@@ -39,14 +41,60 @@ const initialBlogPosts = [
 export default function AdminPage() {
   const { user, isAuthenticated, loading } = useAuth();
   const router = useRouter();
-  const [menuItems, setMenuItems] = useState(initialMenuItems);
-  const [blogPosts, setBlogPosts] = useState(initialBlogPosts);
+  const [menuItems, setMenuItems] = useState<any[]>([]);
+  const [blogPosts, setBlogPosts] = useState<any[]>([]);
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
       router.push('/login');
     }
   }, [isAuthenticated, loading, router]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [menusRes, blogRes] = await Promise.all([
+          apiClient.getMenus({ page: 1, limit: 100 }),
+          apiClient.getBlogPosts()
+        ]);
+
+        if (menusRes && (menusRes as any).menus) {
+          setMenuItems((menusRes as any).menus.map((m: any) => ({
+            id: m._id,
+            name: m.title || m.name,
+            description: m.description,
+            price: m.price,
+            image: m.image ? (m.image.startsWith('http') ? m.image : `http://localhost:5000${m.image}`) : "https://placehold.co/800x600?text=Menu",
+            category: m.category?.title || m.category || 'General',
+            isVeg: m.isVeg !== undefined ? m.isVeg : true,
+            isAvailable: m.isAvailable !== false
+          })));
+        }
+
+        if (blogRes && Array.isArray(blogRes)) {
+          setBlogPosts(blogRes.map((p: any) => ({
+            id: p._id,
+            title: p.title,
+            excerpt: p.excerpt,
+            content: p.content,
+            author: p.author,
+            date: p.createdAt,
+            category: p.category,
+            image: p.image ? (p.image.startsWith('http') ? p.image : `http://localhost:5000${p.image}`) : "https://placehold.co/800x600?text=Blog",
+            views: p.views || 0,
+            featured: p.featured || false,
+            type: p.type || 'article'
+          })));
+        }
+      } catch (error) {
+        console.error("Failed to fetch admin dashboard data", error);
+      }
+    };
+
+    if (isAuthenticated) {
+      fetchData();
+    }
+  }, [isAuthenticated]);
 
   if (loading) {
     return (
@@ -76,7 +124,12 @@ export default function AdminPage() {
   };
 
   return (
-   <>
-   </>
+    <AnimatedDashboard
+      menuItems={menuItems}
+      blogPosts={blogPosts}
+      onUpdateMenuItems={handleUpdateMenuItems}
+      onUpdateBlogPosts={handleUpdateBlogPosts}
+      onGoBack={handleGoBack}
+    />
   );
 }

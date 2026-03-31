@@ -29,7 +29,7 @@ export default function Home() {
           time: 'Available Anytime',
           category: 'Event Category',
           guests: 'Flexible',
-          image: e.image ? `http://localhost:5000${e.image}` : "https://via.placeholder.com/800x600?text=Event",
+          image: e.image ? `http://localhost:5000${e.image}` : "https://placehold.co/800x600?text=Event",
           price: `Starting ₹${e.basePrice || 0}`,
           featured: true
         }));
@@ -43,7 +43,7 @@ export default function Home() {
           reviews: '2.4k',
           deliveryTime: '20-30 mins',
           distance: '1.2 km',
-          image: m.image ? `http://localhost:5000${m.image}` : "https://via.placeholder.com/800x600?text=Menu",
+          image: m.image ? `http://localhost:5000${m.image}` : "https://placehold.co/800x600?text=Menu",
           offer: m.price < 100 ? 'Budget Friendly' : null,
           featured: m.isAvailable
         }));

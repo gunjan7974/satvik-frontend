@@ -33,7 +33,7 @@ export default function MenuPage() {
         name: m.title,
         description: m.description,
         price: m.price || 0,
-        image: m.image ? `http://localhost:5000${m.image}` : "https://via.placeholder.com/300?text=No+Image",
+        image: m.image ? `http://localhost:5000${m.image}` : "https://placehold.co/300?text=No+Image",
         category: m.category ? (m.category.title || m.category) : 'Uncategorized',
         isVeg: m.isVeg !== undefined ? m.isVeg : true,
         isAvailable: m.isAvailable !== false,

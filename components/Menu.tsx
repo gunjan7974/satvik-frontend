@@ -276,7 +276,7 @@ export function Menu({
   const hasMoreItems = showLimited && filteredItems.length > 8;
   const cartItemCount = Object.values(cart).reduce((sum, qty) => sum + qty, 0);
   const cartTotal = Object.entries(cart).reduce((total, [itemId, quantity]) => {
-    const item = menuItems.find(i => i.id === parseInt(itemId));
+    const item = menuItems.find(i => i.id.toString() === itemId.toString());
     return total + (item ? item.price * quantity : 0);
   }, 0);
 

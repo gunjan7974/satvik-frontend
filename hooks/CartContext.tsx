@@ -38,7 +38,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       if (res.success) {
         setCartData(res.cart);
         const map: { [key: string]: number } = {};
-        res.cart.items.forEach((item: any) => {
+        res.cart?.items?.forEach((item: any) => {
           const menuId = typeof item.menu === 'string' ? item.menu : item.menu?._id;
           if (menuId) map[menuId] = item.quantity;
         });
