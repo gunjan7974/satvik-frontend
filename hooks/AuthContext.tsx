@@ -13,6 +13,7 @@ interface AuthContextType {
   logout: () => void;
   isAuthenticated: boolean;
   clearError: () => void;
+  updateProfile: (userData: any) => Promise<any>;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -100,6 +101,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
     router.push('/login');
   };
+  
+  const updateProfile = async (userData: any): Promise<any> => {
+    try {
+      setLoading(true);
+      const response = await apiClient.updateProfile(userData);
+      if (response.success) {
+        setUser(response.user);
+      }
+      return response;
+    } catch (error: any) {
+      setError(error.message || 'Update failed');
+      return { success: false, message: error.message || 'Update failed' };
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const clearError = () => {
     setError(null);
@@ -114,6 +131,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     logout,
     isAuthenticated: !!user,
     clearError,
+    updateProfile,
   };
 
   return (

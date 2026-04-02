@@ -73,7 +73,7 @@ export default function EventsPage() {
 
   const handleEventClick = (eventId: string | number) => {
     setSelectedEventId(eventId);
-    setView("details");
+    setView("booking");
   };
 
   const handleBookNow = () => {
@@ -82,7 +82,7 @@ export default function EventsPage() {
 
   const handleBookingSubmit = (bookingData: any) => {
     console.log("Booking submitted:", bookingData);
-    router.push("/events/event-booking/payment");
+    router.push(`/events/event-booking/payment?bookingId=${bookingData.id}`);
   };
 
   if (loading) {
@@ -98,11 +98,20 @@ export default function EventsPage() {
     <ClientLayout>
       <div className="min-h-screen bg-gray-50">
         {view === "listing" && (
-          <EventListing 
-            onEventClick={handleEventClick as any} 
-            onBack={() => router.push("/")} 
-            externalEvents={events}
-          />
+          <div className="flex flex-col gap-0">
+            <EventListing 
+              onEventClick={handleEventClick as any} 
+              onBack={() => router.push("/")} 
+              externalEvents={events}
+            />
+            {/* Added booking section below the listing as requested */}
+            <section className="bg-white border-t border-gray-100">
+               <EventBooking 
+                 onGoBack={() => router.push("/")}
+                 onBookingSubmit={handleBookingSubmit}
+               />
+            </section>
+          </div>
         )}
 
         {view === "details" && selectedEventId && (
@@ -115,7 +124,10 @@ export default function EventsPage() {
 
         {view === "booking" && (
           <EventBooking 
-            onGoBack={() => setView("details")}
+            onGoBack={() => {
+              setView("listing");
+              setSelectedEventId(null);
+            }}
             onBookingSubmit={handleBookingSubmit}
           />
         )}

@@ -1,5 +1,6 @@
 import { Home, Menu as MenuIcon, ShoppingBag, User, Calendar } from "lucide-react";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 interface MobileBottomNavProps {
   currentPage: string;
@@ -10,12 +11,12 @@ interface MobileBottomNavProps {
 
 export function MobileBottomNav({ currentPage, cartCount, onNavigate, isAuthenticated }: MobileBottomNavProps) {
   const navItems = [
-    { id: "home", icon: Home, label: "Home" },
-    { id: "menu", icon: MenuIcon, label: "Menu" },
-    { id: "orders", icon: ShoppingBag, label: "Orders" },
-    { id: "events", icon: Calendar, label: "Events" },
-    { id: "cart", icon: ShoppingBag, label: "Cart" },
-    { id: isAuthenticated ? "profile" : "login", icon: User, label: isAuthenticated ? "Profile" : "Login" }
+    { id: "home", icon: Home, label: "Home", path: "/" },
+    { id: "menu", icon: MenuIcon, label: "Menu", path: "/menu" },
+    { id: "orders", icon: ShoppingBag, label: "Orders", path: "/orders" },
+    { id: "events", icon: Calendar, label: "Events", path: "/events" },
+    { id: "cart", icon: ShoppingBag, label: "Cart", path: "/cart" },
+    { id: isAuthenticated ? "profile" : "login", icon: User, label: isAuthenticated ? "Profile" : "Login", path: isAuthenticated ? "/profile" : "/login" }
   ];
 
   return (
@@ -28,9 +29,10 @@ export function MobileBottomNav({ currentPage, cartCount, onNavigate, isAuthenti
                           (item.id === "orders" && (currentPage === "dashboard" || currentPage === "orderTracking"));
           
           return (
-            <button
+            <Link
               key={item.id}
-              onClick={() => onNavigate(item.id)}
+              href={item.path}
+              prefetch={true}
               className="flex flex-col items-center justify-center flex-1 h-full relative"
             >
               <div className="relative">
@@ -58,7 +60,7 @@ export function MobileBottomNav({ currentPage, cartCount, onNavigate, isAuthenti
                   transition={{ type: "spring", stiffness: 500, damping: 30 }}
                 />
               )}
-            </button>
+            </Link>
           );
         })}
       </div>

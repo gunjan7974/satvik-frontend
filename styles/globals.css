@@ -185,6 +185,7 @@
     --animate-spin: spin 1s linear infinite;
     --animate-pulse: pulse 2s cubic-bezier(.4, 0, .6, 1) infinite;
     --animate-bounce: bounce 1s infinite;
+    --animate-spin-slow: spin 8s linear infinite;
     --blur-sm: 8px;
     --aspect-video: 16 / 9;
     --default-transition-duration: .15s;
@@ -227,6 +228,8 @@
   body {
     line-height: inherit;
   }
+
+
 
   hr {
     height: 0;
@@ -465,6 +468,11 @@
     background-color: var(--background);
     color: var(--foreground);
   }
+
+  /* html, body {
+  height: 100%;
+  overflow: hidden;
+} */
 
   :where(:not(:has([class*=" text-"]), :not(:has([class^="text-"])))) h1 {
     font-size: var(--text-2xl);

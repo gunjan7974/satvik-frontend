@@ -227,25 +227,18 @@ export default function Sidebar({ sidebarOpen, onToggleSidebar }: SidebarProps) 
     }
   };
 
-  const sidebarWidth = isMobile ? (sidebarOpen ? '100%' : '0px') : (sidebarOpen ? '288px' : '80px');
+  const sidebarWidth = sidebarOpen ? '288px' : '80px';
 
   return (
     <>
       {/* Sidebar */}
-      <motion.div
+      <motion.aside
         initial={false}
-        animate={{ 
-          width: sidebarWidth,
-        }}
+        animate={{ width: sidebarWidth }}
         transition={{ duration: 0.3, ease: "easeInOut" }}
-        className={`h-screen bg-white shadow-lg border-r border-gray-200 overflow-hidden flex-shrink-0 z-50 ${ // changed h-full -> h-screen
-          isMobile ? 'fixed inset-y-0 left-0' : 'relative'
-        }`}
-        style={{ 
-          maxWidth: isMobile ? '320px' : 'none'
-        }}
+        className="fixed left-0 top-0 h-screen z-50 bg-white shadow-lg border-r overflow-y-auto overflow-x-hidden custom-scrollbar"
       >
-        <div className={`h-screen flex flex-col ${!sidebarOpen && !isMobile ? 'w-20' : 'w-72'}`}> {/* changed h-full -> h-screen */}
+        <div className="flex flex-col min-h-full">
           {/* Sidebar Header */}
           <div className="p-4 border-b border-gray-200 flex items-center justify-between min-h-[80px]">
             <div className="flex items-center space-x-3">
@@ -463,7 +456,7 @@ export default function Sidebar({ sidebarOpen, onToggleSidebar }: SidebarProps) 
             </AnimatePresence>
           </div>
         </div>
-      </motion.div>
+      </motion.aside>
 
       {/* Mobile Overlay */}
       <AnimatePresence>

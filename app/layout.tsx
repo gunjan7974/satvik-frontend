@@ -4,6 +4,7 @@ import { Inter, Playfair_Display } from 'next/font/google';
 import { Providers } from './providers';
 import '@/styles/globals.css';
 import { GlobalShell } from '@/components/GlobalShell';
+import { Toaster } from "sonner";
 import { AuthProvider } from '@/hooks/AuthContext';
 import { CartProvider } from '@/hooks/CartContext';
 
@@ -33,6 +34,7 @@ export default function RootLayout({
               <GlobalShell>
                 {children}
               </GlobalShell>
+              <Toaster position="top-center" richColors />
             </Providers>
           </CartProvider>
         </AuthProvider>

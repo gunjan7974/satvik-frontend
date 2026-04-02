@@ -31,6 +31,9 @@ export default function CheckoutPage() {
     try {
       setIsPlacingOrder(true);
       
+      // Calculate local total since backend cart might not provide it
+      const calculatedTotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
       const completeOrderData = {
         customer: {
           name: orderData.name || user?.name || "Guest User",
@@ -48,10 +51,10 @@ export default function CheckoutPage() {
         orderItems: cartItems.map((item) => ({
           food: String(item.id),
           quantity: item.quantity,
-          name: item.name, // For summary in gateway
+          name: item.name,
           price: item.price
         })),
-        totalPrice: cartData?.total || 0,
+        totalPrice: calculatedTotal,
         status: "Pending",
         paymentMethod: orderData.paymentMethod || "cod",
       };

@@ -49,7 +49,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     setSidebarOpen(!sidebarOpen);
   };
 
-  // Calculate main content margin
+  // Calculate main content margin to avoid overlap with fixed sidebar
   const mainContentMargin = isMobile 
     ? 'ml-0' 
     : (sidebarOpen ? 'md:ml-72' : 'md:ml-20');
@@ -59,38 +59,38 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      {/* Sidebar */}
+    <div className="h-screen w-full bg-gray-50 flex overflow-hidden">
+      {/* Sidebar - fixed internally (fixed left-0 top-0 h-screen z-50 overflow-y-auto) */}
       <Sidebar 
         sidebarOpen={sidebarOpen}
         onToggleSidebar={handleToggleSidebar}
       />
 
-      {/* Main Content Area */}
-      <div className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${mainContentMargin} w-full`}>
-        {/* Header */}
-        <div className="flex-shrink-0">
-          <Header 
-            user={user}
-            onLogout={logout}
-            notifications={3}
-            sidebarOpen={sidebarOpen}
-            onToggleSidebar={handleToggleSidebar}
-            isMobile={isMobile}
-          />
-        </div>
+      {/* Main Container - flex column with margin-left to avoid overlap */}
+      <div 
+        className={`flex-1 flex flex-col h-full bg-white transition-all duration-300 ${mainContentMargin} overflow-hidden font-sans`}
+      >
+        <Header 
+          user={user}
+          onLogout={logout}
+          notifications={3}
+          sidebarOpen={sidebarOpen}
+          onToggleSidebar={handleToggleSidebar}
+          isMobile={isMobile}
+        />
 
-        {/* Main Content */}
-        <main className="flex-1 overflow-auto">
-          <div className="p-4 md:p-6 min-h-[calc(100vh-8rem)]">
-            {children}
+        {/* Independent Content Scroll Zone */}
+        <main className="flex-1 overflow-y-auto custom-scrollbar scroll-smooth bg-gray-50/50">
+          <div className="p-4 md:p-8 min-h-full">
+            <div className="flex-1">
+              {children}
+            </div>
+            
+            <div className="mt-20">
+              <Footer />
+            </div>
           </div>
         </main>
-
-        {/* Footer */}
-        <div className="flex-shrink-0">
-          <Footer />
-        </div>
       </div>
     </div>
   );

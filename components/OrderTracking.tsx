@@ -37,8 +37,26 @@ export function OrderTracking({ orderId, onGoBack }: OrderTrackingProps) {
       try {
         setLoading(true);
         const response = await apiClient.getOrder(orderId);
-        if (response.success && response.data) {
-          setOrder(response.data);
+        if (response.success && (response.data || response.order)) {
+          const rawOrder = response.data || (response as any).order;
+          
+          // Map backend order to frontend Order format if needed
+          const mappedOrder: any = {
+            ...rawOrder,
+            items: rawOrder.items || rawOrder.orderItems || [],
+            total: rawOrder.total || rawOrder.totalPrice || 0,
+            createdAt: rawOrder.createdAt || new Date().toISOString()
+          };
+          
+          // Ensure items have title and price
+          mappedOrder.items = mappedOrder.items.map((item: any) => ({
+            ...item,
+            title: item.title || item.food?.title || item.name || 'Item',
+            price: item.price || item.food?.price || 0,
+            quantity: item.quantity || 1
+          }));
+
+          setOrder(mappedOrder);
         } else {
             setError("Order not found");
         }

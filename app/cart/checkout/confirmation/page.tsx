@@ -69,9 +69,23 @@ export default function OrderConfirmationPage() {
         console.log('Parsed order data:', parsedOrder);
         
         // Map backend order to OrderData format if needed
+        const orderItemsList = parsedOrder.orderItems || parsedOrder.items || [];
+        const mappedItems = orderItemsList.map((item: any) => {
+          const itemPrice = item.price || (item.food?.price) || 0;
+          return {
+            id: item.food?._id || item.food || item.menu || item.id,
+            name: item.name || item.title || (item.food?.title) || 'Item',
+            price: itemPrice,
+            quantity: item.quantity,
+            subtotal: item.subtotal || (itemPrice * item.quantity)
+          };
+        });
+
+        const subtotalValue = parsedOrder.totalPrice || parsedOrder.total || mappedItems.reduce((acc: number, item: any) => acc + item.subtotal, 0);
+
         const mappedOrder: OrderData = {
           _id: parsedOrder._id,
-          orderNumber: parsedOrder.orderNumber || parsedOrder._id?.substring(0, 8),
+          orderNumber: parsedOrder.orderNumber || (parsedOrder._id ? parsedOrder._id.substring(0, 8) : `SK${Date.now().toString().slice(-6)}`),
           orderDate: parsedOrder.createdAt || new Date().toISOString(),
           status: parsedOrder.status || 'placed',
           name: parsedOrder.customer?.name || parsedOrder.name || 'Guest',
@@ -81,19 +95,13 @@ export default function OrderConfirmationPage() {
           address: parsedOrder.customer?.address?.line1 || parsedOrder.address || '',
           city: parsedOrder.customer?.address?.city || parsedOrder.city || '',
           paymentMethod: (parsedOrder.paymentMethod || 'cod') as 'cod' | 'online',
-          items: (parsedOrder.items || []).map((item: any) => ({
-            id: item.menu || item.id,
-            name: item.title || item.name,
-            price: item.price,
-            quantity: item.quantity,
-            subtotal: item.subtotal || (item.price * item.quantity)
-          })),
+          items: mappedItems,
           summary: parsedOrder.summary || {
-            subtotal: parsedOrder.totalPrice || parsedOrder.total || 0,
-            gst: 0,
-            deliveryFee: 0,
-            total: parsedOrder.totalPrice || parsedOrder.total || 0,
-            totalItems: (parsedOrder.orderItems || parsedOrder.items || []).reduce((acc: number, item: any) => acc + (item.quantity || 0), 0)
+            subtotal: subtotalValue,
+            gst: Math.round(subtotalValue * 0.18),
+            deliveryFee: subtotalValue > 500 ? 0 : 40,
+            total: subtotalValue + Math.round(subtotalValue * 0.18) + (subtotalValue > 500 ? 0 : 40),
+            totalItems: mappedItems.reduce((acc: number, item: any) => acc + (item.quantity || 0), 0)
           }
         };
 

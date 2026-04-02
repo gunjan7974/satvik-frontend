@@ -9,8 +9,8 @@ import { Separator } from "./ui/separator";
 import { Calendar } from "./ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Checkbox } from "./ui/checkbox";
-import { CalendarIcon, Users, Clock, MapPin, Phone, Download, CheckCircle, XCircle, ArrowLeft, Gift, Building2, Sparkles, Heart, Star, PartyPopper } from "lucide-react";
-import { useState, useCallback } from "react";
+import { CalendarIcon, Users, Clock, MapPin, Phone, Download, CheckCircle, XCircle, Shield, ArrowLeft, Gift, Building2, Sparkles, Heart, Star, PartyPopper } from "lucide-react";
+import { useState, useCallback, useRef } from "react";
 import { format } from "date-fns";
 
 
@@ -31,6 +31,93 @@ interface EventBooking {
   selectedServices: string[];
   selectedVenue: string;
 }
+
+
+const PassCapsule = ({ opt, isSelected, onSelect }: { opt: any, isSelected: boolean, onSelect: () => void }) => {
+  const [mousePos, setMousePos] = useState({ x: 50, y: 50 });
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    setMousePos({ x, y });
+  };
+
+  const vibeStyles: any = {
+    none: { color: "bg-gray-100 text-gray-400", icon: XCircle, accent: "border-gray-200" },
+    standard: { color: "bg-blue-50 text-blue-500", icon: Sparkles, accent: "border-blue-200" },
+    vip: { color: "bg-orange-50 text-orange-600", icon: Star, accent: "border-orange-200" }
+  };
+  
+  const style = vibeStyles[opt.id as keyof typeof vibeStyles];
+  const Icon = style.icon;
+
+  return (
+    <div
+      onClick={onSelect}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className={`relative p-4 rounded-xl border-2 cursor-pointer group flex items-center gap-4 overflow-hidden transition-all duration-500 ${
+        isSelected 
+          ? `${style.accent} bg-white shadow-lg ring-2 ring-orange-500/20` 
+          : "border-gray-100 bg-white/40 hover:bg-white hover:shadow-md"
+      }`}
+    >
+      {/* 🔮 COMPACT GLOW */}
+      <div 
+        className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none bg-[radial-gradient(circle_at_var(--x)_var(--y),_var(--glow),transparent_70%)]`}
+        style={{ 
+          // @ts-ignore
+          "--x": `${mousePos.x}%`, 
+          // @ts-ignore
+          "--y": `${mousePos.y}%`,
+          // @ts-ignore
+          "--glow": isSelected ? "rgba(249, 115, 22, 0.1)" : "rgba(209, 213, 219, 0.15)"
+        }}
+      />
+
+      <div 
+        className={`w-12 h-12 rounded-lg flex items-center justify-center transition-all duration-500 ease-out shrink-0 ${
+          isSelected ? `${style.color} shadow-sm` : "bg-gray-50 text-gray-300"
+        }`}
+        style={{
+          transform: isHovered ? `translate(${(mousePos.x - 50) / 10}px, ${(mousePos.y - 50) / 10}px)` : 'none'
+        }}
+      >
+        <Icon className={`w-6 h-6 ${isSelected ? "animate-pulse" : ""}`} />
+      </div>
+
+      <div 
+        className="flex-1 text-left space-y-0.5 relative z-10"
+        style={{
+          transform: isHovered ? `translate(${(mousePos.x - 50) / 20}px, ${(mousePos.y - 50) / 20}px)` : 'none'
+        }}
+      >
+        <div className="flex items-center justify-between gap-2">
+          <h4 className={`text-sm font-black italic uppercase tracking-tighter ${
+            isSelected ? "text-gray-950" : "text-gray-500"
+          }`}>
+            {opt.label}
+          </h4>
+          <span className={`text-[10px] font-black italic ${isSelected ? "text-orange-600" : "text-gray-400"}`}>
+            {opt.price === 0 ? "Free" : `₹${opt.price}`}
+          </span>
+        </div>
+        <p className={`text-[10px] font-medium leading-tight italic line-clamp-1 ${
+          isSelected ? "text-gray-500" : "text-gray-400"
+        }`}>
+          {opt.desc}
+        </p>
+      </div>
+
+      {isSelected && (
+        <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-orange-600 animate-pulse" />
+      )}
+    </div>
+  );
+};
 
 interface EventBookingProps {
   onGoBack: () => void;
@@ -138,7 +225,8 @@ const additionalServices = [
   { id: "groupPricing", name: "Special Group Pricing (10% discount)", price: 0, isDiscount: true, description: "Bulk discount for large gatherings" },
   { id: "liveMusic", name: "Live Music Performance", price: 3000, description: "Live musicians for your event entertainment" },
   { id: "floralDecor", name: "Premium Floral Decorations", price: 2000, description: "Fresh flower arrangements and centerpieces" },
-  { id: "valet", name: "Valet Parking Service", price: 1500, description: "Professional valet parking for your guests" }
+  { id: "valet", name: "Valet Parking Service", price: 1500, description: "Professional valet parking for your guests" },
+  { id: "passes", name: "Event Entry/VIP Passes", price: 1200, description: "Custom designed entry passes and VIP badges for your event" }
 ];
 
 const timeSlots = [
@@ -202,7 +290,14 @@ export function EventBooking({ onGoBack, onBookingSubmit }: EventBookingProps) {
     status: "pending",
     selectedVenue: "main"
   });
+  const [selectedPass, setSelectedPass] = useState<string>("none");
   const [confirmedBooking, setConfirmedBooking] = useState<EventBooking | null>(null);
+
+  const passOptions = [
+    { id: "none", label: "No Digital Pass Required", price: 0, desc: "Standard entry without official badges" },
+    { id: "standard", label: "Standard Event Pass", price: 500, desc: "Professional printed badges for all guests" },
+    { id: "vip", label: "Elite VIP Terminal Pass", price: 1500, desc: "Premium badges with VIP lounge access" }
+  ];
 
   const selectedPackage = eventPackages.find(pkg => pkg.type === booking.eventType);
   const pricePerGuest = 150; // Additional cost per guest above base count
@@ -221,9 +316,12 @@ export function EventBooking({ onGoBack, onBookingSubmit }: EventBookingProps) {
     return total;
   }, 0);
 
+  const currentPass = passOptions.find(p => p.id === selectedPass);
+  const passPrice = currentPass?.price || 0;
+  
   const selectedVenueData = eventVenues.find(venue => venue.id === booking.selectedVenue);
   const venuePrice = selectedVenueData?.price || 0;
-  const baseTotal = (selectedPackage?.basePrice || 0) + (additionalGuests * pricePerGuest) + servicesTotal + venuePrice;
+  const baseTotal = (selectedPackage?.basePrice || 0) + (additionalGuests * pricePerGuest) + servicesTotal + venuePrice + passPrice;
   const discount = selectedServices.includes("groupPricing") ? Math.round(baseTotal * 0.1) : 0;
   const totalAmount = baseTotal - discount;
   const advanceAmount = Math.round(totalAmount * 0.3); // 30% advance
@@ -237,12 +335,17 @@ export function EventBooking({ onGoBack, onBookingSubmit }: EventBookingProps) {
     });
   }, []);
 
-  const handleBookingSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedDate || !booking.customerName || !booking.phone || !booking.eventType || !booking.timeSlot) {
-      alert("Please fill all required fields");
-      return;
-    }
+  const handleBookingSubmit = (e?: React.FormEvent | React.MouseEvent) => {
+    e?.preventDefault?.();
+    
+    // SPECIFIC FIELD VALIDATION
+    if (!selectedDate) { alert("⚠️ Please select an Event Date in the 'Event Details' section."); return; }
+    if (!booking.customerName) { alert("⚠️ Please enter your Full Name in 'Customer Information'."); return; }
+    if (!booking.phone) { alert("⚠️ Please enter your Phone Number."); return; }
+    if (!booking.eventType) { alert("⚠️ Please select an Event Package (Basic/Premium/Elite)."); return; }
+    if (!booking.timeSlot) { alert("⚠️ Please select a Time Slot for your event."); return; }
+
+    console.log("Validation Successful. Preparing Booking Module...");
 
     const newBooking: EventBooking = {
       id: `SK${Date.now().toString().slice(-6)}`,
@@ -258,7 +361,7 @@ export function EventBooking({ onGoBack, onBookingSubmit }: EventBookingProps) {
       advanceAmount,
       status: "pending",
       bookingDate: new Date(),
-      selectedServices,
+      selectedServices: [...selectedServices, `pass_${selectedPass}`], // Track the selected pass level
       selectedVenue: booking.selectedVenue || "main"
     };
 
@@ -269,6 +372,12 @@ export function EventBooking({ onGoBack, onBookingSubmit }: EventBookingProps) {
   const handleConfirmBooking = () => {
     if (confirmedBooking && onBookingSubmit) {
       const confirmedBookingData = { ...confirmedBooking, status: "confirmed" as const };
+      
+      // PERSISTENCE PROTOCOL: Store in localStorage for verification pages
+      if (typeof window !== "undefined") {
+        localStorage.setItem(`booking_${confirmedBookingData.id}`, JSON.stringify(confirmedBookingData));
+      }
+      
       setConfirmedBooking(confirmedBookingData);
       onBookingSubmit(confirmedBookingData);
     }
@@ -734,6 +843,28 @@ Thank you for choosing Sattvik Kaleva!
                       onChange={(e) => setBooking(prev => ({ ...prev, email: e.target.value }))}
                       placeholder="Enter your email address"
                     />
+
+                    {/* ✨ NEW CUTE & UNIQUE PASS CAPSULES ✨ */}
+                    <div className="mt-16 pt-10 border-t border-gray-100">
+                      <div className="text-center mb-10">
+                        <Badge variant="outline" className="bg-orange-50 text-orange-600 border-orange-100 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.3em] mb-3">
+                           Limited Access Protocol
+                        </Badge>
+                        <h3 className="text-4xl font-black italic uppercase tracking-tighter text-gray-900 leading-none">Choose Your Entry Vibe</h3>
+                        <p className="text-[10px] font-bold text-gray-400 tracking-[0.2em] uppercase mt-2">Select the access tier that fits your celebration energy</p>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        {passOptions.map((opt) => (
+                           <PassCapsule 
+                             key={opt.id} 
+                             opt={opt} 
+                             isSelected={selectedPass === opt.id} 
+                             onSelect={() => setSelectedPass(opt.id)} 
+                           />
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -1002,10 +1133,9 @@ Thank you for choosing Sattvik Kaleva!
                   </div>
 
                   <Button
-                    type="submit"
-                    className="w-full bg-orange-600 hover:bg-orange-700"
+                    onClick={(e) => handleBookingSubmit(e)}
+                    className="w-full bg-orange-600 hover:bg-orange-700 active:scale-95 transition-transform"
                     size="lg"
-                    disabled={!selectedDate || !booking.customerName || !booking.phone || !booking.eventType || !booking.timeSlot}
                   >
                     Book Event
                   </Button>

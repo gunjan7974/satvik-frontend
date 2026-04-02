@@ -5,6 +5,7 @@ import { Badge } from "./ui/badge";
 import { Menu, Phone, ShoppingCart, User, Lock, LayoutDashboard, LogOut } from "lucide-react";
 import { useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import Link from "next/link";
 
 interface HeaderProps {
   cart: { [key: number]: number };
@@ -25,6 +26,7 @@ interface HeaderProps {
 export function Header({
   cart,
   onViewCart,
+  onNavigateToMenu,
   onLoginClick,
   onLogoutClick,
   onAdminClick,
@@ -57,6 +59,10 @@ export function Header({
     setIsMenuOpen(false);
   };
 
+  const handleLinkClick = () => {
+    setIsMenuOpen(false);
+  };
+
   const handleCartClick = () => {
     onViewCart();
     setIsMenuOpen(false);
@@ -67,7 +73,11 @@ export function Header({
       <div className="w-full px-6 lg:px-10">
         <div className="flex justify-between items-center h-24">
           {/* Logo */}
-          <div className="flex items-center cursor-pointer" onClick={() => navigateTo('/')}>
+          <Link 
+            href="/" 
+            className="flex items-center cursor-pointer" 
+            onClick={handleLinkClick}
+          >
             <img
               src="/assets/logo.png"
               alt="Sattvik Kaleva Logo"
@@ -77,16 +87,17 @@ export function Header({
               <h1 className="text-2xl font-bold text-orange-600">Sattvik Kaleva</h1>
               <p className="text-sm text-gray-600">Pure Veg • Veggy and Choosy</p>
             </div>
-          </div>
+          </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center space-x-6">
             {NAV_LINKS.map(({ label, path }) => {
               const active = isActive(path);
               return (
-                <button
+                <Link
                   key={path}
-                  onClick={() => navigateTo(path)}
+                  href={path}
+                  prefetch={true}
                   className="relative flex flex-col items-center gap-0.5 font-semibold text-[14px] transition-all duration-200"
                   style={{
                     color: active ? "transparent" : "#374151",
@@ -109,13 +120,13 @@ export function Header({
                       }}
                     />
                   )}
-                </button>
+                </Link>
               );
             })}
             
             <Button 
+              onClick={onNavigateToMenu}
               className="bg-orange-600 hover:bg-orange-700 text-white font-semibold relative"
-              onClick={() => navigateTo('/cart')}
             >
               Order Now
               {totalItems > 0 && (
@@ -133,8 +144,9 @@ export function Header({
                   onClick={onDashboardClick}
                   className="flex items-center space-x-2 border-orange-600 text-orange-600 hover:bg-orange-50"
                 >
-                  <User className="h-4 w-4" />
-                  <span>{username || "Profile"}</span>
+                  <div className="h-7 w-7 rounded-full bg-orange-500 text-white flex items-center justify-center text-[11px] font-black shadow-sm border border-white/20 transition-transform group-hover:scale-110">
+                    {username ? username.charAt(0).toUpperCase() : <User className="h-3.5 w-3.5" />}
+                  </div>
                 </Button>
           
                 {isAdmin && (
@@ -160,15 +172,16 @@ export function Header({
                 </Button>
               </div>
             ) : (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => navigateTo('/login')}
-                className="flex items-center space-x-2 border-orange-600 text-orange-600 hover:bg-orange-50"
-              >
-                <User className="h-4 w-4" />
-                <span>Login</span>
-              </Button>
+              <Link href="/login" passHref>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center space-x-2 border-orange-600 text-orange-600 hover:bg-orange-50"
+                >
+                  <User className="h-4 w-4" />
+                  <span>Login</span>
+                </Button>
+              </Link>
             )}
 
             <div className="flex items-center space-x-2 text-sm text-orange-600 font-medium">
@@ -178,35 +191,37 @@ export function Header({
 
             {/* Desktop Cart */}
             {totalItems > 0 && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleCartClick}
-                className="relative border-orange-600 text-orange-600 hover:bg-orange-50"
-              >
-                <ShoppingCart className="h-4 w-4 mr-2" />
-                Cart
-                <Badge className="absolute -top-2 -right-2 bg-orange-600 text-white px-1.5 py-0.5 text-xs min-w-[20px] flex items-center justify-center">
-                  {totalItems}
-                </Badge>
-              </Button>
+              <Link href="/cart" passHref>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="relative border-orange-600 text-orange-600 hover:bg-orange-50"
+                >
+                  <ShoppingCart className="h-4 w-4 mr-2" />
+                  Cart
+                  <Badge className="absolute -top-2 -right-2 bg-orange-600 text-white px-1.5 py-0.5 text-xs min-w-[20px] flex items-center justify-center">
+                    {totalItems}
+                  </Badge>
+                </Button>
+              </Link>
             )}
           </nav>
 
           {/* Mobile Cart & Menu */}
           <div className="flex items-center space-x-2 lg:hidden">
             {totalItems > 0 && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleCartClick}
-                className="relative border-orange-600 text-orange-600 hover:bg-orange-50"
-              >
-                <ShoppingCart className="h-4 w-4" />
-                <Badge className="absolute -top-2 -right-2 bg-orange-600 text-white px-1.5 py-0.5 text-xs min-w-[20px] flex items-center justify-center">
-                  {totalItems}
-                </Badge>
-              </Button>
+              <Link href="/cart" passHref onClick={handleLinkClick}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="relative border-orange-600 text-orange-600 hover:bg-orange-50"
+                >
+                  <ShoppingCart className="h-4 w-4" />
+                  <Badge className="absolute -top-2 -right-2 bg-orange-600 text-white px-1.5 py-0.5 text-xs min-w-[20px] flex items-center justify-center">
+                    {totalItems}
+                  </Badge>
+                </Button>
+              </Link>
             )}
             
             <Button
@@ -227,9 +242,11 @@ export function Header({
               {NAV_LINKS.map(({ label, path }) => {
                 const active = isActive(path);
                 return (
-                  <button
+                  <Link
                     key={path}
-                    onClick={() => navigateTo(path)}
+                    href={path}
+                    prefetch={true}
+                    onClick={handleLinkClick}
                     className="flex items-center gap-3 text-left py-2.5 px-3 rounded-xl font-medium text-[14px] transition-all duration-200"
                     style={{
                       background: active
@@ -241,13 +258,16 @@ export function Header({
                     }}
                   >
                     {label}
-                  </button>
+                  </Link>
                 );
               })}
               
               <Button 
+                onClick={() => {
+                  onNavigateToMenu();
+                  handleLinkClick();
+                }}
                 className="bg-orange-600 hover:bg-orange-700 text-white font-semibold w-fit"
-                onClick={() => navigateTo('/order')}
               >
                 Order Now
               </Button>
@@ -257,18 +277,25 @@ export function Header({
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={onDashboardClick}
+                    onClick={() => {
+                      onDashboardClick?.();
+                      handleLinkClick();
+                    }}
                     className="flex items-center space-x-2 w-fit border-orange-600 text-orange-600 hover:bg-orange-50"
                   >
-                    <User className="h-4 w-4" />
-                    <span>{username || "Profile"}</span>
+                    <div className="h-8 w-8 rounded-full bg-orange-500 text-white flex items-center justify-center text-sm font-black shadow-sm border border-white/20">
+                      {username ? username.charAt(0).toUpperCase() : <User className="h-4 w-4" />}
+                    </div>
                   </Button>
                   
                   {isAdmin && (
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={onAdminClick}
+                      onClick={() => {
+                        onAdminClick?.();
+                        handleLinkClick();
+                      }}
                       className="flex items-center space-x-2 w-fit border-orange-600 text-orange-600 hover:bg-orange-50"
                     >
                       <Lock className="h-4 w-4" />
@@ -279,7 +306,10 @@ export function Header({
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={onLogoutClick}
+                    onClick={() => {
+                      onLogoutClick?.();
+                      handleLinkClick();
+                    }}
                     className="flex items-center space-x-2 w-fit text-red-600 hover:text-red-700 hover:bg-red-50"
                   >
                     <LogOut className="h-4 w-4" />
@@ -287,15 +317,16 @@ export function Header({
                   </Button>
                 </div>
               ) : (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={onLoginClick}
-                  className="flex items-center space-x-2 w-fit border-orange-600 text-orange-600 hover:bg-orange-50"
-                >
-                  <User className="h-4 w-4" />
-                  <span>Login</span>
-                </Button>
+                <Link href="/login" passHref onClick={handleLinkClick}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex items-center space-x-2 w-fit border-orange-600 text-orange-600 hover:bg-orange-50"
+                  >
+                    <User className="h-4 w-4" />
+                    <span>Login</span>
+                  </Button>
+                </Link>
               )}
 
               <div className="flex items-center space-x-2 text-sm text-orange-600 font-medium pt-2">
@@ -311,7 +342,7 @@ export function Header({
       {totalItems > 0 && (
         <div className="hidden lg:block fixed top-24 right-6 z-40">
           <Button
-            onClick={handleCartClick}
+            onClick={onViewCart}
             className="bg-orange-600 hover:bg-orange-700 shadow-lg relative text-white font-semibold"
           >
             <ShoppingCart className="h-4 w-4 mr-2" />
