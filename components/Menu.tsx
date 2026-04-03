@@ -238,11 +238,6 @@ export function Menu({
   const categories = ["All", "Breakfast", "Main Course", "Dal", "Chinese", "Rice", "Starters", "Tandoor", "Breads", "Thali", "Combos", "Beverages", "Desserts"];
 
   const handleAddToCart = (itemId: string) => {
-    if (!isAuthenticated) {
-      setShowLoginAlert(true);
-      setTimeout(() => setShowLoginAlert(false), 3000);
-      return;
-    }
     onAddToCart(itemId);
   };
 
@@ -428,105 +423,190 @@ export function Menu({
                 return (
                   <motion.div
                     key={item.id}
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    transition={{ delay: index * 0.05, duration: 0.3 }}
-                    whileHover={{ y: -4 }}
-                    className="group"
+                    transition={{ delay: index * 0.05, duration: 0.35 }}
+                    whileHover={{ y: -4, transition: { duration: 0.2 } }}
+                    className="group h-full"
                   >
-                    <div className="h-full overflow-hidden !border-0 !shadow-none hover:shadow-2xl hover:bg-white rounded-3xl transition-all duration-500 bg-transparent group flex flex-col">
-                      {/* Image Header */}
-                      <div className="relative h-32 overflow-hidden flex-shrink-0">
+                    <div
+                      className="h-full flex flex-col rounded-3xl overflow-hidden transition-all duration-300"
+                      style={{
+                        background: 'linear-gradient(160deg, #ffffff 0%, #f8f8f8 100%)',
+                        border: '1px solid #f0f0f0',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.04)',
+                        fontFamily: "'Inter', 'Poppins', system-ui, sans-serif",
+                      }}
+                      onMouseEnter={(e) => {
+                        (e.currentTarget as HTMLDivElement).style.boxShadow = '0 12px 28px rgba(0,0,0,0.10)';
+                      }}
+                      onMouseLeave={(e) => {
+                        (e.currentTarget as HTMLDivElement).style.boxShadow = '0 4px 12px rgba(0,0,0,0.04)';
+                      }}
+                    >
+                      {/* Image Section */}
+                      <div className="relative h-32 overflow-hidden flex-shrink-0" style={{ borderRadius: '16px 16px 0 0' }}>
                         <img
                           src={item.image}
                           alt={item.name}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                         />
+                        {/* Subtle gradient overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-400" />
 
-                        {/* Gradient Overlay for labels */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-                        {/* Top Badges */}
-                        <div className="absolute top-3 left-3 flex flex-col gap-2">
-                          <div className={`w-3.5 h-3.5 rounded-sm border-2 ${item.isVeg ? 'border-green-600' : 'border-red-600'} flex items-center justify-center p-[2px]`}>
+                        {/* Veg/Non-veg dot */}
+                        <div className="absolute top-2.5 left-2.5">
+                          <div className={`w-4 h-4 rounded-sm border-2 ${item.isVeg ? 'border-green-600' : 'border-red-600'} flex items-center justify-center p-[2px] bg-white/90`}>
                             <div className={`w-full h-full rounded-full ${item.isVeg ? 'bg-green-600' : 'bg-red-600'}`} />
                           </div>
                         </div>
 
+                        {/* Rating Badge */}
                         {item.rating && (
-                          <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-sm rounded-lg px-1.5 py-0.5 flex items-center gap-1 shadow-lg border border-slate-100">
-                            <Star className="h-3 w-3 text-yellow-500 fill-yellow-500" />
-                            <span className="text-[11px] font-black text-slate-800">{item.rating}</span>
+                          <div
+                            className="absolute top-2.5 right-2.5 flex items-center gap-1 px-2 py-0.5 rounded-lg"
+                            style={{
+                              background: 'rgba(255,255,255,0.97)',
+                              backdropFilter: 'blur(4px)',
+                              boxShadow: '0 2px 8px rgba(0,0,0,0.10)',
+                              border: '1px solid #f0eded',
+                            }}
+                          >
+                            <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                            <span style={{ fontSize: '12px', fontWeight: 700, color: '#333', lineHeight: 1 }}>{item.rating}</span>
                           </div>
                         )}
                       </div>
 
-                      {/* Content Details */}
-                      <CardContent className="pl-11 pr-5 py-5 flex-1 flex flex-col items-start text-left gap-1.5">
-                        <h3 className="font-bold text-slate-900 text-[20px] leading-tight">
+                      {/* Card Body */}
+                      <div className="flex flex-col flex-1 px-4 pt-3 pb-4 gap-1.5">
+
+                        {/* Title */}
+                        <h3 style={{
+                          fontSize: '15px',
+                          fontWeight: 600,
+                          color: '#1a1a1a',
+                          letterSpacing: '0.2px',
+                          lineHeight: '1.3',
+                          margin: 0,
+                        }}>
                           {item.name}
                         </h3>
 
-                        <p className="text-slate-500 text-[11px] leading-snug line-clamp-2">
+                        {/* Description */}
+                        <p style={{
+                          fontSize: '11px',
+                          color: '#888',
+                          fontWeight: 400,
+                          lineHeight: '1.5',
+                          margin: 0,
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical',
+                          overflow: 'hidden',
+                        }}>
                           {item.description}
                         </p>
 
-                        <div className="flex items-center gap-1.5 my-1">
-                          <StarRating rating={item.rating || 5} size="md" />
-                          <span className="text-slate-400 text-[13px] font-medium">{item.rating || 5}</span>
+                        {/* Stars Row */}
+                        <div className="flex items-center gap-1.5" style={{ marginTop: '2px' }}>
+                          <div className="flex items-center gap-0.5">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <Star
+                                key={star}
+                                className={`h-3 w-3 ${star <= Math.round(item.rating || 5) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-200 fill-gray-200'}`}
+                              />
+                            ))}
+                          </div>
+                          <span style={{ fontSize: '12px', color: '#777', fontWeight: 500 }}>{item.rating || 5}</span>
                         </div>
 
-                        <div className="text-[28px] font-black text-orange-600 my-1">
+                        {/* Price */}
+                        <div style={{ fontSize: '20px', fontWeight: 700, color: '#ff5a1f', margin: '2px 0', letterSpacing: '-0.5px' }}>
                           ₹{item.price}
                         </div>
 
-                          <div className="inline-block px-4 py-1.5 rounded-full border-none text-slate-700 text-[10px] font-black uppercase tracking-wider mb-4 shadow-sm bg-slate-50">
+                        {/* Specials Tag */}
+                        <div style={{
+                          display: 'inline-block',
+                          alignSelf: 'flex-start',
+                          background: '#fff3e8',
+                          color: '#ff6a00',
+                          borderRadius: '999px',
+                          padding: '4px 12px',
+                          fontSize: '11px',
+                          fontWeight: 600,
+                          letterSpacing: '0.3px',
+                          marginBottom: '6px',
+                          border: '1px solid #ffe5cc',
+                        }}>
                           {/^[0-9a-fA-F]{24}$/.test(item.category) ? 'Specials' : (item.category || 'Specials')}
                         </div>
 
-                        <div className="mt-auto w-full">
+                        {/* Add to Cart / Stepper */}
+                        <div className="mt-auto">
                           {cartQuantity > 0 ? (
-                            <div className="flex items-center justify-between bg-orange-50 border border-orange-100 rounded-xl p-1 shadow-sm">
+                            <div
+                              className="flex items-center justify-between rounded-2xl p-1"
+                              style={{
+                                background: '#fff5f0',
+                                border: '1px solid #ffe0d0',
+                              }}
+                            >
                               <button
                                 onClick={() => onRemoveFromCart(item.id.toString())}
-                                className="w-8 h-8 rounded-lg hover:bg-orange-100 flex items-center justify-center text-orange-600 transition-colors"
+                                className="w-8 h-8 rounded-xl flex items-center justify-center transition-colors"
+                                style={{ color: '#ff5a1f' }}
+                                onMouseEnter={e => (e.currentTarget.style.background = '#ffe5d5')}
+                                onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
                               >
-                                <Minus className="h-3 w-3" />
+                                <Minus className="h-3.5 w-3.5" />
                               </button>
-                              <span className="font-black text-xs text-orange-700 w-4 text-center">
-                                {cartQuantity}
-                              </span>
+                              <span style={{ fontWeight: 800, fontSize: '13px', color: '#cc3d00' }}>{cartQuantity}</span>
                               <button
                                 onClick={() => handleAddToCart(item.id.toString())}
-                                className="w-8 h-8 rounded-lg hover:bg-orange-100 flex items-center justify-center text-orange-600 transition-colors"
+                                className="w-8 h-8 rounded-xl flex items-center justify-center transition-colors"
+                                style={{ color: '#ff5a1f' }}
+                                onMouseEnter={e => (e.currentTarget.style.background = '#ffe5d5')}
+                                onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
                               >
-                                <Plus className="h-3 w-3" />
+                                <Plus className="h-3.5 w-3.5" />
                               </button>
                             </div>
                           ) : (
                             <button
                               onClick={() => handleAddToCart(item.id.toString())}
-                              className="w-full text-white font-black rounded-full py-1 text-[9px] tracking-wider transition-all duration-300 flex items-center justify-center gap-1 transform hover:-translate-y-0.5 active:scale-[0.97] active:shadow-sm"
+                              className="w-full flex items-center justify-center gap-1.5 transition-all duration-200 active:scale-95"
                               style={{
-                                background: 'linear-gradient(135deg, #FF6B2C 0%, #FF3D00 100%)',
-                                boxShadow: '0 4px 12px -3px rgba(255, 107, 44, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3)',
-                                border: '1px solid rgba(255, 107, 44, 0.1)'
+                                background: 'linear-gradient(135deg, #ff7a18 0%, #ff3d00 100%)',
+                                color: '#fff',
+                                fontSize: '13px',
+                                fontWeight: 600,
+                                borderRadius: '999px',
+                                padding: '8px 0',
+                                border: 'none',
+                                boxShadow: '0 6px 18px rgba(255, 90, 0, 0.28)',
+                                letterSpacing: '0.2px',
                               }}
-                              onMouseOver={(e) => {
-                                e.currentTarget.style.background = 'linear-gradient(135deg, #FF7A3D 0%, #FF4A1A 100%)';
-                                e.currentTarget.style.boxShadow = '0 8px 15px -3px rgba(255, 107, 44, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.4)';
+                              onMouseEnter={(e) => {
+                                (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(135deg, #ff8c30 0%, #ff4d1a 100%)';
+                                (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 8px 22px rgba(255, 90, 0, 0.40)';
+                                (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1.015)';
                               }}
-                              onMouseOut={(e) => {
-                                e.currentTarget.style.background = 'linear-gradient(135deg, #FF6B2C 0%, #FF3D00 100%)';
-                                e.currentTarget.style.boxShadow = '0 4px 12px -3px rgba(255, 107, 44, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3)';
+                              onMouseLeave={(e) => {
+                                (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(135deg, #ff7a18 0%, #ff3d00 100%)';
+                                (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 6px 18px rgba(255, 90, 0, 0.28)';
+                                (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)';
                               }}
                             >
-                              + Add to Cart
+                              <Plus className="h-3.5 w-3.5" />
+                              Add to Cart
                             </button>
                           )}
                         </div>
-                      </CardContent>
+
+                      </div>
                     </div>
                   </motion.div>
                 );

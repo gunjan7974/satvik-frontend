@@ -86,8 +86,8 @@ const sidebarItems: SidebarItem[] = [
 
 const CollapsedSidebarItem = ({ item, pathname }: { item: SidebarItem, pathname: string }) => {
     const Icon = item.icon;
-    const hasActiveChild = item.children?.some(child => pathname.startsWith(child.path || '')) || false;
-    const isActive = item.path ? (pathname === item.path || pathname.startsWith(item.path + '/')) : hasActiveChild;
+    const hasActiveChild = item.children?.some(child => (pathname || '').startsWith(child.path || '')) || false;
+    const isActive = item.path ? ((pathname || '') === item.path || (pathname || '').startsWith(item.path + '/')) : hasActiveChild;
 
     if (item.children) {
         return (
@@ -104,7 +104,7 @@ const CollapsedSidebarItem = ({ item, pathname }: { item: SidebarItem, pathname:
                         <div className="font-bold text-sm px-3 py-2 text-black">{item.label}</div>
                         {item.children.map(child => {
                             const ChildIcon = child.icon;
-                            const isChildActive = child.path ? (pathname === child.path || pathname.startsWith(child.path + '/')) : false;
+                            const isChildActive = child.path ? ((pathname || '') === child.path || (pathname || '').startsWith(child.path + '/')) : false;
                             return (
                                 <Link key={child.id} href={child.path || '#'}>
                                     <div className={cn("flex items-center p-3 rounded-md hover:bg-gray-100 text-sm", isChildActive ? "bg-blue-50 text-blue-700" : "text-black hover:text-black")}>
@@ -138,8 +138,8 @@ const CollapsedSidebarItem = ({ item, pathname }: { item: SidebarItem, pathname:
 
 const ExpandedSidebarItem = ({ item, pathname, isMobile, onToggleSidebar }: { item: SidebarItem, pathname: string, isMobile: boolean, onToggleSidebar: () => void }) => {
     const Icon = item.icon;
-    const hasActiveChild = item.children?.some(child => pathname.startsWith(child.path || '')) || false;
-    const isActive = item.path ? (pathname === item.path || pathname.startsWith(item.path + '/')) : hasActiveChild;
+    const hasActiveChild = item.children?.some(child => (pathname || '').startsWith(child.path || '')) || false;
+    const isActive = item.path ? ((pathname || '') === item.path || (pathname || '').startsWith(item.path + '/')) : hasActiveChild;
 
     if (item.children) {
         return (
@@ -154,7 +154,7 @@ const ExpandedSidebarItem = ({ item, pathname, isMobile, onToggleSidebar }: { it
                     <AccordionContent className="pl-8 pt-1">
                         {item.children.map(child => {
                             const ChildIcon = child.icon;
-                            const isChildActive = child.path ? (pathname === child.path || pathname.startsWith(child.path + '/')) : false;
+                            const isChildActive = child.path ? ((pathname || '') === child.path || (pathname || '').startsWith(child.path + '/')) : false;
                             return(
                                 <Link 
                                     key={child.id}

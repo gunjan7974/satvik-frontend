@@ -1,4 +1,5 @@
-import { Users, Award, Heart, Clock } from "lucide-react";
+import { Users, Award, Heart, Clock, Utensils, Grid, Sparkles } from "lucide-react";
+import { motion } from "framer-motion";
 
 export function About() {
   const features = [
@@ -91,23 +92,41 @@ export function About() {
             <p className="text-gray-600 mb-6 leading-relaxed">
               We take pride in our diverse menu that caters to all tastes - from classic North Indian delicacies to South Indian specialties, from Chinese fusion to delightful desserts. Each dish is prepared fresh, ensuring maximum flavor and nutrition.
             </p>
-            <div className="grid grid-cols-2 gap-6">
-              <div className="bg-orange-50 rounded-lg p-4">
-                <p className="text-3xl text-orange-600 mb-1">92+</p>
-                <p className="text-gray-600 text-sm">Menu Items</p>
-              </div>
-              <div className="bg-purple-50 rounded-lg p-4">
-                <p className="text-3xl text-purple-600 mb-1">11</p>
-                <p className="text-gray-600 text-sm">Food Categories</p>
-              </div>
-              <div className="bg-teal-50 rounded-lg p-4">
-                <p className="text-3xl text-teal-600 mb-1">100%</p>
-                <p className="text-gray-600 text-sm">Vegetarian</p>
-              </div>
-              <div className="bg-pink-50 rounded-lg p-4">
-                <p className="text-3xl text-pink-600 mb-1">24/7</p>
-                <p className="text-gray-600 text-sm">Service</p>
-              </div>
+            <div className="grid grid-cols-2 gap-4 mt-8">
+              {[
+                { label: "Menu Items", value: "92+", color: "bg-orange-500", lightColor: "bg-orange-50", textColor: "text-orange-600", icon: Utensils },
+                { label: "Categories", value: "11", color: "bg-purple-500", lightColor: "bg-purple-50", textColor: "text-purple-600", icon: Grid },
+                { label: "Pure Veg", value: "100%", color: "bg-emerald-500", lightColor: "bg-emerald-50", textColor: "text-emerald-600", icon: Heart },
+                { label: "Experience", value: "12Yr", color: "bg-blue-500", lightColor: "bg-blue-50", textColor: "text-blue-600", icon: Sparkles }
+              ].map((stat, i) => {
+                const StatIcon = stat.icon;
+                return (
+                  <motion.div
+                    key={i}
+                    whileHover={{ y: -5, scale: 1.02 }}
+                    className={`${stat.lightColor} rounded-3xl p-5 border border-white relative overflow-hidden group transition-all duration-300 shadow-sm hover:shadow-md`}
+                  >
+                    {/* Content Container - Asymmetrical Premium Alignment */}
+                    <div className="relative z-10 flex flex-col items-center h-full">
+                      {/* Icon shifted to Top Left */}
+                      <div className="w-full flex justify-start mb-2">
+                        <div className={`${stat.color} w-10 h-10 rounded-2xl flex items-center justify-center text-white shadow-lg transform group-hover:rotate-12 transition-transform duration-500`}>
+                          <StatIcon className="w-5 h-5" />
+                        </div>
+                      </div>
+                      
+                      {/* Text still Centered */}
+                      <div className="text-center mt-auto">
+                        <p className={`text-3xl md:text-4xl font-black ${stat.textColor} mb-1 tracking-tighter`}>{stat.value}</p>
+                        <p className="text-gray-500 text-[11px] font-bold uppercase tracking-[0.2em]">{stat.label}</p>
+                      </div>
+                    </div>
+                    
+                    {/* Decorative element - Background Blur Circle */}
+                    <div className={`absolute -right-4 -bottom-4 w-16 h-16 ${stat.color} opacity-10 rounded-full blur-xl group-hover:scale-150 transition-transform duration-700 z-0`} />
+                  </motion.div>
+                );
+              })}
             </div>
           </div>
 

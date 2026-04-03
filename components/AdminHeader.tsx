@@ -3,7 +3,9 @@
 import { motion } from 'framer-motion';
 import { Button } from './ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-import { Bell, LogOut, User, Settings, Menu } from 'lucide-react';
+import { Bell, LogOut, User, Settings, Menu, ExternalLink, ChevronRight, Home } from 'lucide-react';
+import { usePathname } from 'next/navigation';
+import Link from 'next/link';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,6 +35,30 @@ export default function Header({
   onToggleSidebar,
   isMobile = false
 }: HeaderProps) {
+  const pathname = usePathname();
+
+  // Generate breadcrumbs from pathname
+  const generateBreadcrumbs = () => {
+    const paths = (pathname || '').split('/').filter(p => p);
+    return paths.map((path, index) => {
+      const href = `/${paths.slice(0, index + 1).join('/')}`;
+      const label = path.charAt(0).toUpperCase() + path.slice(1).replace(/-/g, ' ');
+      const isLast = index === paths.length - 1;
+
+      return (
+        <div key={href} className="flex items-center">
+          <ChevronRight className="h-4 w-4 text-gray-400 mx-1" />
+          {isLast ? (
+            <span className="text-gray-800 font-semibold truncate max-w-[100px] md:max-w-none">{label}</span>
+          ) : (
+            <Link href={href} className="text-gray-500 hover:text-orange-600 transition-colors">
+              {label}
+            </Link>
+          )}
+        </div>
+      );
+    });
+  };
   return (
     <motion.header
       initial={{ y: -20, opacity: 0 }}
@@ -53,13 +79,27 @@ export default function Header({
             <Menu className="h-5 w-5" />
           </Button>
         )}
-        <h1 className="text-lg md:text-xl font-semibold text-gray-800 truncate">
-          Admin Dashboard
+        {/* Breadcrumbs */}
+        <nav className="hidden sm:flex items-center text-sm font-medium text-gray-500 overflow-hidden">
+          <Link href="/admin" className="flex items-center hover:text-orange-600 transition-colors">
+            <Home className="h-4 w-4" />
+          </Link>
+          {generateBreadcrumbs()}
+        </nav>
+        <h1 className="sm:hidden text-lg font-bold text-gray-800 truncate">
+          Admin
         </h1>
       </div>
 
       {/* Right Section - User Menu & Notifications */}
       <div className="flex items-center space-x-2 md:space-x-4">
+        {/* Visit Website Button */}
+        <Link href="/" target="_blank" className="hidden lg:flex">
+          <Button variant="outline" size="sm" className="border-gray-200 text-gray-600 hover:bg-gray-50">
+            <ExternalLink className="h-4 w-4 mr-2" />
+            Live Site
+          </Button>
+        </Link>
         {/* Notifications */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -102,9 +142,11 @@ export default function Header({
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <User className="h-4 w-4 mr-2" />
-              <span>Profile</span>
+            <DropdownMenuItem asChild>
+              <Link href="/profile" className="flex items-center w-full cursor-pointer">
+                <User className="h-4 w-4 mr-2" />
+                <span>Profile</span>
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuItem>
               <Settings className="h-4 w-4 mr-2" />

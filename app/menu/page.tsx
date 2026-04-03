@@ -49,7 +49,6 @@ export default function MenuPage() {
   };
 
   const handleAddToCart = async (id: any) => {
-    if (!isAuthenticated) return router.push("/login");
     await addToCart(id);
     router.push("/cart");
   };

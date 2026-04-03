@@ -4,7 +4,7 @@ export default function AdminIndexPage() {
   const sections = [
     { id: 'dashboard', label: 'Dashboard', href: '/admin/dashboard' },
     { id: 'users', label: 'Users', href: '/admin/users' },
-    { id: 'menu', label: 'Foods (Menu)', href: '/admin/menu' },
+    { id: 'menu', label: 'Menu', href: '/admin/menu' },
     { id: 'categories', label: 'Categories', href: '/admin/category' },
     { id: 'orders', label: 'Orders', href: '/admin/orders' },
     { id: 'carts', label: 'Active Carts', href: '/admin/carts' },

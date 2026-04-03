@@ -784,24 +784,56 @@ export function EventListing({ onEventClick, onBack, externalEvents }: EventList
                     </div>
 
                     {/* ── Card Body ── */}
-                    <div className="p-4 flex flex-col flex-1">
-                      <h3 className="font-black text-slate-900 text-[13px] leading-snug mb-1 line-clamp-1">
+                    <div className="p-4 flex flex-col flex-1" style={{ fontFamily: "'Inter','Poppins',system-ui,sans-serif" }}>
+                      {/* Title */}
+                      <h3 style={{
+                        fontWeight: 700,
+                        fontSize: '14px',
+                        color: '#111827',
+                        lineHeight: '1.35',
+                        marginBottom: '4px',
+                        letterSpacing: '0.1px',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 1,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                      }}>
                         {event.name}
                       </h3>
-                      <p className="text-slate-400 text-[10px] leading-relaxed line-clamp-2 mb-3 italic">
+
+                      {/* Description */}
+                      <p style={{
+                        fontSize: '11px',
+                        color: '#9CA3AF',
+                        lineHeight: '1.6',
+                        marginBottom: '10px',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                        fontStyle: 'italic',
+                      }}>
                         {event.description}
                       </p>
 
-                      <div className="space-y-1.5 mb-4">
+                      {/* Info Rows */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', marginBottom: '10px' }}>
                         {[
                           [Clock, event.time],
                           [MapPin, event.location],
                         ].map(([IconComp, text], idx) => {
                           const IC = IconComp as any;
                           return (
-                            <div key={idx} className="flex items-center gap-2">
-                              <IC className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "#f97316" }} />
-                              <span className="text-[11px] text-slate-500 font-medium truncate">{text as string}</span>
+                            <div key={idx} style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '6px',
+                              padding: '4px 8px',
+                              borderRadius: '8px',
+                              background: '#FFF7F0',
+                            }}>
+                              <IC style={{ width: '12px', height: '12px', flexShrink: 0, color: '#F97316' }} />
+                              <span style={{ fontSize: '11px', color: '#6B7280', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{text as string}</span>
                             </div>
                           );
                         })}
@@ -809,49 +841,63 @@ export function EventListing({ onEventClick, onBack, externalEvents }: EventList
 
                       {/* Capacity bar */}
                       {event.maxAttendees > 0 && (
-                        <div className="mb-3">
-                          <div className="flex justify-between mb-1">
-                            <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wide">
+                        <div style={{ marginBottom: '10px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+                            <span style={{ fontSize: '10px', color: '#9CA3AF', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                               {event.attendees ?? 0}/{event.maxAttendees} Attending
                             </span>
-                            <span className="text-[9px] font-black" style={{ color: pct > 80 ? "#ef4444" : "#f97316" }}>
+                            <span style={{
+                              fontSize: '10px',
+                              fontWeight: 800,
+                              color: pct > 80 ? '#EF4444' : '#F97316',
+                              background: pct > 80 ? '#FEE2E2' : '#FFF3E8',
+                              padding: '1px 8px',
+                              borderRadius: '999px',
+                            }}>
                               {left} left
                             </span>
                           </div>
-                          <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "#F1F5F9" }}>
-                            <div className="h-full rounded-full transition-all duration-700"
-                              style={{
-                                width: `${pct}%`,
-                                background: pct > 80
-                                  ? "linear-gradient(90deg,#f87171,#dc2626)"
-                                  : "linear-gradient(90deg,#fb923c,#ea580c)",
-                              }} />
+                          <div style={{ height: '5px', borderRadius: '999px', background: '#F1F5F9', overflow: 'hidden' }}>
+                            <div style={{
+                              height: '100%',
+                              width: `${pct}%`,
+                              borderRadius: '999px',
+                              transition: 'width 0.7s ease',
+                              background: pct > 80
+                                ? 'linear-gradient(90deg,#f87171,#dc2626)'
+                                : 'linear-gradient(90deg,#fb923c,#ea580c)',
+                            }} />
                           </div>
                         </div>
                       )}
 
-
-
-                      {/* CTA */}
+                      {/* CTA — Book Now */}
                       <button
-                        className="mt-auto w-full flex items-center justify-center gap-2 text-white font-black text-[10px] tracking-widest uppercase rounded-full py-2.5 transition-all duration-300"
+                        className="mt-auto w-full flex items-center justify-center gap-2 text-white rounded-full transition-all duration-250"
                         style={{
-                          background: "linear-gradient(135deg,#FF6B2C 0%,#FF3D00 100%)",
-                          boxShadow: "0 10px 25px -5px rgba(255,107,44,0.4), inset 0 1px 0 rgba(255,255,255,0.25)",
+                          background: 'linear-gradient(135deg, #ff7a18 0%, #ff3d00 100%)',
+                          boxShadow: '0 6px 20px -4px rgba(255,90,0,0.40), inset 0 1px 0 rgba(255,255,255,0.2)',
+                          fontSize: '12px',
+                          fontWeight: 700,
+                          letterSpacing: '0.5px',
+                          padding: '10px 0',
+                          border: 'none',
                         }}
-                        onMouseOver={(e) => {
-                          (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-2px)";
-                          (e.currentTarget as HTMLButtonElement).style.boxShadow =
-                            "0 16px 30px -5px rgba(255,107,44,0.5), inset 0 1px 0 rgba(255,255,255,0.25)";
+                        onMouseEnter={(e) => {
+                          (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(135deg, #ff8c30 0%, #ff4d1a 100%)';
+                          (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 10px 28px -4px rgba(255,90,0,0.55), inset 0 1px 0 rgba(255,255,255,0.25)';
+                          (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-2px) scale(1.015)';
                         }}
-                        onMouseOut={(e) => {
-                          (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0)";
-                          (e.currentTarget as HTMLButtonElement).style.boxShadow =
-                            "0 10px 25px -5px rgba(255,107,44,0.4), inset 0 1px 0 rgba(255,255,255,0.25)";
+                        onMouseLeave={(e) => {
+                          (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(135deg, #ff7a18 0%, #ff3d00 100%)';
+                          (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 6px 20px -4px rgba(255,90,0,0.40), inset 0 1px 0 rgba(255,255,255,0.2)';
+                          (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0) scale(1)';
                         }}
                         onClick={(e) => { e.stopPropagation(); onEventClick(event.id); }}
                       >
-                        <Ticket className="w-3.5 h-3.5" /> Book Now <ArrowRight className="w-3.5 h-3.5" />
+                        <Ticket style={{ width: '14px', height: '14px' }} />
+                        Book Now
+                        <ArrowRight style={{ width: '14px', height: '14px' }} />
                       </button>
                     </div>
                   </motion.article>

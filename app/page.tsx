@@ -11,35 +11,57 @@ export default function Home() {
   const router = useRouter();
   const [events, setEvents] = useState<any[]>([]);
   const [menus, setMenus] = useState<any[]>([]);
+  const [gallery, setGallery] = useState<any[]>([]);
+  const [blogs, setBlogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   useEffect(() => {
     const fetchHomeData = async () => {
       try {
-        const [eventsRes, menusRes] = await Promise.all([
+        const [eventsRes, menusRes, galleryRes, blogsRes] = await Promise.all([
           apiClient.getEventTypes(),
-          apiClient.getMenus({ page: 1, limit: 6 })
+          apiClient.getMenus({ page: 1, limit: 6 }),
+          apiClient.getGallery(),
+          apiClient.getBlogs()
         ]);
 
         // Map event types to display on home
-        const mappedEvents = eventsRes.map((e: any) => ({
-          id: e._id,
-          title: e.name,
-          date: 'Book Now',
-          time: 'Available Anytime',
-          category: 'Event Category',
-          guests: 'Flexible',
-          image: e.image ? `http://localhost:5000${e.image}` : "https://placehold.co/800x600?text=Event",
-          price: `Starting ₹${e.basePrice || 0}`,
-          featured: true
-        }));
+        const mappedEvents = eventsRes.map((e: any) => {
+          const name = e.name || 'Event';
+          const backendUrl = "http://localhost:5000";
+          let imageUrl = e.image;
+          
+          if (imageUrl && !imageUrl.startsWith('http')) {
+            imageUrl = `${backendUrl}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`;
+          }
+
+          if (!imageUrl || imageUrl.includes('placeholder') || imageUrl === backendUrl) {
+            imageUrl = name.toLowerCase().includes('wedding') ? "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=1000" :
+                       name.toLowerCase().includes('birthday') ? "https://images.unsplash.com/photo-1464349172961-10af6abc7e1e?q=80&w=1000" :
+                       name.toLowerCase().includes('corporate') ? "https://images.unsplash.com/photo-1511578314322-379afb476865?q=80&w=1000" :
+                       "https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=1000";
+          }
+
+          return {
+            id: e._id,
+            title: name,
+            date: 'Book Now',
+            time: 'Available Anytime',
+            category: 'Event Category',
+            guests: 'Flexible',
+            image: imageUrl,
+            price: `Starting ₹${e.basePrice || 0}`,
+            featured: true
+          }
+        });
 
         // Map menus
         const mappedMenus = ((menusRes as any).menus || []).map((m: any) => ({
           id: m._id,
           name: m.title,
           cuisine: m.category ? (m.category.title || m.category) : 'Pure Vegetarian',
-          rating: 4.8, // Static for now as no reviews in backend yet
+          rating: 4.8, 
           reviews: '2.4k',
           deliveryTime: '20-30 mins',
           distance: '1.2 km',
@@ -48,8 +70,31 @@ export default function Home() {
           featured: m.isAvailable
         }));
 
+        // Map Gallery
+        const mappedGallery = (galleryRes || []).map((g: any) => ({
+          id: g._id,
+          src: g.image ? `http://localhost:5000${g.image}` : "https://placehold.co/800x600?text=Gallery",
+          alt: g.title || 'Sattvik Kaleva Gallery'
+        }));
+
+        // Map Blogs
+        const mappedBlogs = (blogsRes || []).map((b: any) => ({
+          id: b._id,
+          title: b.title,
+          excerpt: b.excerpt,
+          image: b.image ? `http://localhost:5000${b.image}` : "https://placehold.co/800x600?text=Blog",
+          author: b.author || 'Admin',
+          category: b.category || 'Restaurant',
+          date: b.createdAt || b.date || new Date().toISOString(),
+          views: b.views || 0,
+          featured: b.featured,
+          type: b.type || 'article'
+        }));
+
         setEvents(mappedEvents.slice(0, 3));
         setMenus(mappedMenus.slice(0, 5));
+        setGallery(mappedGallery);
+        setBlogs(mappedBlogs);
       } catch (error) {
         console.error("Failed to fetch home data:", error);
       } finally {
@@ -61,26 +106,33 @@ export default function Home() {
   }, []);
 
   const goToSearch = (query: string = "") => {
-    if (query) {
-      router.push(`/search?q=${encodeURIComponent(query)}`);
-    } else {
-      router.push('/search');
-    }
+    setIsTransitioning(true);
+    setTimeout(() => {
+      if (query) {
+        router.push(`/search?q=${encodeURIComponent(query)}`);
+      } else {
+        router.push('/search');
+      }
+    }, 50);
   };
 
   const goToRestaurant = () => {
-    router.push('/menu');
+    setIsTransitioning(true);
+    setTimeout(() => router.push('/menu'), 50);
   };
 
   const goToEventListing = () => {
-    router.push('/events');
+    setIsTransitioning(true);
+    setTimeout(() => router.push('/events'), 50);
   };
 
-  if (loading) {
+  if (loading || isTransitioning) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-white">
-        <Loader2 className="h-12 w-12 animate-spin text-orange-600" />
-        <p className="text-gray-500 font-bold uppercase tracking-widest text-sm">Sattvik Kaleva Loading...</p>
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-white/70 backdrop-blur-md fixed inset-0 z-[100]">
+        <div className="w-16 h-16 border-4 border-orange-200 border-t-orange-600 rounded-full animate-spin shadow-xl"></div>
+        <p className="mt-4 text-orange-600 font-bold tracking-widest uppercase text-sm">
+          {isTransitioning ? "Navigating..." : "Sattvik Kaleva Loading..."}
+        </p>
       </div>
     );
   }
@@ -92,8 +144,12 @@ export default function Home() {
         onExploreEventsClick={goToEventListing}
         onSearchClick={goToSearch}
         onRestaurantClick={goToRestaurant}
+        onViewGallery={() => router.push('/gallery')}
+        onBlogClick={(id) => router.push(`/blog?id=${id}`)}
         liveEvents={events}
         liveMenus={menus}
+        liveGallery={gallery}
+        liveBlogs={blogs}
       />
     </ClientLayout>
   );

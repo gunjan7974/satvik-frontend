@@ -10,24 +10,42 @@ import { useState } from "react";
 export default function CartPage() {
   const router = useRouter();
   const { isAuthenticated } = useAuth();
-  const { cartData, loading, updateQuantity, removeFromCart, clearCart } = useCart();
+  const { cart, cartData, loading, updateQuantity, removeFromCart, clearCart } = useCart();
   const [isUpdating, setIsUpdating] = useState<string | null>(null);
 
-  const cartItems = cartData?.items.map((item: any) => {
-    const food = item.food;
-    const foodImage = food?.image ? (food.image.startsWith('http') ? food.image : `http://localhost:5000${food.image}`) : "";
-    
-    return {
-      id: typeof food === 'string' ? food : food?._id,
-      name: typeof food === 'string' ? item.title : food?.name,
-      price: typeof food === 'string' ? item.price : food?.price,
-      quantity: item.quantity,
-      image: foodImage || "https://placehold.co/300?text=No+Image",
-      subtotal: item.subtotal,
-      description: typeof food !== 'string' ? food?.description : "",
-      category: typeof food !== 'string' ? (food?.category?.title || food?.category) : "General",
-    };
-  }) || [];
+  // Helper to get items for both guest and auth modes
+  const cartItems = isAuthenticated ? (
+    cartData?.items.map((item: any) => {
+      const food = item.food;
+      const foodImage = food?.image ? (food.image.startsWith('http') ? food.image : `http://localhost:5000${food.image}`) : "";
+      
+      return {
+        id: typeof food === 'string' ? food : food?._id,
+        name: typeof food === 'string' ? (item.title || "Item") : food?.name,
+        price: typeof food === 'string' ? (item.price || 0) : food?.price,
+        quantity: item.quantity,
+        image: foodImage || "https://placehold.co/300?text=No+Image",
+        subtotal: item.subtotal,
+        description: typeof food !== 'string' ? food?.description : "",
+        category: typeof food !== 'string' ? (food?.category?.title || food?.category) : "General",
+      };
+    }) || []
+  ) : (
+    // Guest Mode: Create items from cartMap
+    // Note: In a real app, we'd fetch these specific menuIds. For now, we use a basic placeholder if not found.
+    Object.entries(cart).map(([id, qty]) => ({
+      id,
+      name: "Sattvik Item", // Placeholder since we don't have full data in guest mode without fetch
+      price: 0, 
+      quantity: qty,
+      image: "https://placehold.co/300?text=Guest+Item",
+      subtotal: 0,
+      description: "",
+      category: "General",
+    }))
+  );
+
+  const cartTotal = isAuthenticated ? (cartData?.total || 0) : 0;
 
   const handleUpdateQuantity = async (itemId: string, newQuantity: number) => {
     setIsUpdating(itemId);
@@ -43,29 +61,17 @@ export default function CartPage() {
 
   const handleProceedToCheckout = () => {
     if (cartItems.length === 0) return;
+    if (!isAuthenticated) {
+      // Prompt login before checkout
+      router.push("/login?redirect=/cart/checkout");
+      return;
+    }
     router.push("/cart/checkout");
   };
 
   const handleContinueShopping = () => {
     router.push("/menu");
   };
-
-  if (!isAuthenticated && !loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="bg-white p-8 rounded-lg shadow-md text-center max-w-md">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Please Login</h2>
-          <p className="text-gray-600 mb-6">You need to be logged in to view your cart.</p>
-          <button
-            onClick={() => router.push("/login")}
-            className="bg-orange-600 text-white px-6 py-3 rounded-lg hover:bg-orange-700 transition-colors"
-          >
-            Login to Continue
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   if (loading) {
     return (

@@ -284,7 +284,7 @@ export function EventBooking({ onGoBack, onBookingSubmit }: EventBookingProps) {
     phone: "",
     email: "",
     eventType: "",
-    guestCount: 25,
+    guestCount: 0,
     timeSlot: "",
     specialRequests: "",
     status: "pending",
@@ -999,8 +999,8 @@ Thank you for choosing Sattvik Kaleva!
                         id="guestCount"
                         type="number"
                         min="1"
-                        value={booking.guestCount}
-                        onChange={(e) => setBooking(prev => ({ ...prev, guestCount: parseInt(e.target.value) || 25 }))}
+                        value={booking.guestCount || ""}
+                        onChange={(e) => setBooking(prev => ({ ...prev, guestCount: parseInt(e.target.value) || 0 }))}
                         className="max-w-32"
                       />
                       <span className="text-sm text-gray-600">guests</span>

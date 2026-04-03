@@ -1,12 +1,12 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Header } from "./Header";
 import { Footer } from "./Footer";
 import { Chatbot } from "./Chatbot";
 import { MobileBottomNav } from "./MobileBottomNav";
-
 import { useAuth } from "@/hooks/AuthContext";
 import { useCart } from "@/hooks/CartContext";
 
@@ -19,10 +19,24 @@ export function GlobalShell({ children }: GlobalShellProps) {
   const { cart, cartData, totalItems } = useCart();
   const pathname = usePathname() ?? "";
   const router = useRouter();
+  const [isNavigating, setIsNavigating] = useState(false);
+
+  // Trigger loading state when pathname changes
+  useEffect(() => {
+    setIsNavigating(false); // Stop when pathname is updated
+  }, [pathname]);
+
+  const handleNavigation = (path: string) => {
+    if (path === pathname) return;
+    setIsNavigating(true);
+    setTimeout(() => {
+      router.push(path);
+    }, 50);
+  };
 
   const handleLogout = () => {
     logout();
-    router.push('/login');
+    handleNavigation('/login');
   };
 
   const headerProps = {
@@ -31,21 +45,22 @@ export function GlobalShell({ children }: GlobalShellProps) {
     isLoggedIn: isAuthenticated,
     isAdmin: user?.role === 'admin',
     username: user?.name,
-    onViewCart: () => router.push('/cart'),
-    onNavigateToMenu: () => router.push('/menu'),
-    onLoginClick: () => router.push('/login'),
+    onViewCart: () => handleNavigation('/cart'),
+    onNavigateToMenu: () => handleNavigation('/menu'),
+    onLoginClick: () => handleNavigation('/login'),
     onLogoutClick: handleLogout,
-    onAdminClick: () => router.push('/admin'),
+    onAdminClick: () => handleNavigation('/admin'),
     onDashboardClick: () => {
       const role = (user as any)?.role || 'user';
-      if (role === 'admin') router.push('/admin');
-      else if (role === 'vendor') router.push('/vendor/dashboard');
-      else if (role === 'sales') router.push('/sales/dashboard');
-      else router.push('/profile');
+      if (role === 'admin') handleNavigation('/admin');
+      else if (role === 'vendor') handleNavigation('/vendor/dashboard');
+      else if (role === 'sales') handleNavigation('/sales/dashboard');
+      else handleNavigation('/profile');
     },
-    onNavigateToHome: () => router.push('/'),
-    onNavigateToBlog: () => router.push('/blog'),
-    onNavigateToGallery: () => router.push('/gallery'),
+    onNavigateToHome: () => handleNavigation('/'),
+    onNavigateToBlog: () => handleNavigation('/blog'),
+    onNavigateToGallery: () => handleNavigation('/gallery'),
+    onStartNav: () => setIsNavigating(true),
   };
 
   const safeHeaderProps = headerProps ?? {
@@ -80,9 +95,35 @@ export function GlobalShell({ children }: GlobalShellProps) {
   if (isAdmin) return <>{children}</>;
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col relative">
+      {/* Navigation Overlay */}
+      <AnimatePresence>
+        {isNavigating && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-[100] bg-white/70 backdrop-blur-sm flex flex-col items-center justify-center"
+          >
+            <div className="w-16 h-16 border-4 border-orange-200 border-t-orange-600 rounded-full animate-spin shadow-xl"></div>
+            <p className="mt-4 text-orange-600 font-bold tracking-widest uppercase text-sm">Loading...</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <Header {...headerProps} />
-      <main className="flex-1">{children}</main>
+      <main className="flex-1 transition-all duration-300">
+        <motion.div
+          key={pathname}
+          initial={{ opacity: 0.8, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
+          className="w-full h-full"
+        >
+          {children}
+        </motion.div>
+      </main>
       <Footer />
 
 
@@ -96,28 +137,28 @@ export function GlobalShell({ children }: GlobalShellProps) {
             switch (page) {
               case "home":
               case "homepage":
-                router.push("/");
+                handleNavigation("/");
                 break;
               case "menu":
-                router.push("/menu");
+                handleNavigation("/menu");
                 break;
               case "orders":
-                router.push("/orders");
+                handleNavigation("/orders");
                 break;
               case "events":
-                router.push("/events");
+                handleNavigation("/events");
                 break;
               case "cart":
-                router.push("/cart");
+                handleNavigation("/cart");
                 break;
               case "login":
-                router.push("/login");
+                handleNavigation("/login");
                 break;
               case "profile":
-                router.push("/profile");
+                handleNavigation("/profile");
                 break;
               default:
-                router.push(`/${page}`);
+                handleNavigation(`/${page}`);
             }
           }}
           isAuthenticated={safeHeaderProps.isLoggedIn}

@@ -92,7 +92,7 @@ export default function AdminCartsPage() {
                       <TableCell className="font-medium">
                         <div className="flex items-center gap-2">
                           <User className="h-4 w-4 text-gray-400" />
-                          {typeof cart.user === 'object' ? cart.user.name : "Guest User"}
+                          {cart.user?.name || (typeof cart.user === 'string' ? cart.user : "Guest User")}
                         </div>
                       </TableCell>
                       <TableCell>{cart.items.length} items</TableCell>

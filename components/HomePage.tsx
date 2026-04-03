@@ -1,19 +1,25 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useRef } from 'react';
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { Search, MapPin, ChevronRight, Star, Clock, Utensils, Calendar, TrendingUp, Gift, Sparkles, Shield, Truck, Heart } from 'lucide-react';
 import { Hero } from './Hero';
 import { Button } from './ui/button';
-// import { Input } from './ui/input';
 import { Badge } from './ui/badge';
 import { Card, CardContent } from './ui/card';
+import { About } from './About';
+import { GallerySection } from './GallerySection';
+import { BlogSection } from './BlogSection';
 
 interface HomePageProps {
   onOrderFoodClick: () => void;
   onExploreEventsClick: () => void;
   onSearchClick: (query: string) => void;
   onRestaurantClick: () => void;
+  onViewGallery?: () => void;
+  onBlogClick?: (postId: number) => void;
   liveEvents?: any[];
   liveMenus?: any[];
+  liveGallery?: any[];
+  liveBlogs?: any[];
 }
 
 export function HomePage({ 
@@ -21,8 +27,12 @@ export function HomePage({
   onExploreEventsClick, 
   onSearchClick,
   onRestaurantClick,
+  onViewGallery = () => {},
+  onBlogClick = () => {},
   liveEvents,
-  liveMenus
+  liveMenus,
+  liveGallery = [],
+  liveBlogs = []
 }: HomePageProps) {
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -35,7 +45,7 @@ export function HomePage({
       time: 'Book Now',
       category: 'Event Category',
       guests: 'Flexible',
-      image: '/images/event_wedding.png',
+      image: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=1000',
       price: 'Starting ₹200000',
       featured: true
     },
@@ -44,9 +54,9 @@ export function HomePage({
       title: 'Birthday',
       date: 'Available Anytime',
       time: 'Book Now',
-      category: 'Event Category',
+      category: 'Celebration',
       guests: 'Flexible',
-      image: '/images/event_birthday.png',
+      image: 'https://images.unsplash.com/photo-1464349172961-10af6abc7e1e?q=80&w=1000',
       price: 'Starting ₹30000',
       featured: true
     },
@@ -55,9 +65,9 @@ export function HomePage({
       title: 'Corporate Event',
       date: 'Available Anytime',
       time: 'Book Now',
-      category: 'Event Category',
+      category: 'Professional',
       guests: 'Flexible',
-      image: '/images/event_corporate.png',
+      image: 'https://images.unsplash.com/photo-1511578314322-379afb476865?q=80&w=1000',
       price: 'Starting ₹75000',
       featured: true
     }
@@ -132,142 +142,40 @@ export function HomePage({
         onExploreEventsClick={onExploreEventsClick}
       />
 
+      {/* About Section */}
+      <About />
 
-      {/* Features Section */}
-      {/* <section className="py-20 bg-white">
+      {/* Cuisine Categories (Menu) */}
+      <section className="py-20 bg-slate-50/50">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {features.map((feature, index) => (
-              <div key={index} className="text-center group">
-                <div className="w-20 h-20 bg-gradient-to-br from-orange-100 to-amber-100 rounded-3xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                  <div className="text-orange-600">
-                    {feature.icon}
-                  </div>
-                </div>
-                <h3 className="text-xl font-bold text-slate-900 mb-3">{feature.title}</h3>
-                <p className="text-slate-600 leading-relaxed">{feature.description}</p>
-              </div>
+          <div className="text-center mb-16">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-orange-100/50 border border-orange-200 mb-6"
+            >
+              <Sparkles className="h-4 w-4 text-orange-600" />
+              <span className="text-orange-800 text-[10px] font-black uppercase tracking-widest">Our Selection</span>
+            </motion.div>
+            <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-4 tracking-tight">
+              Explore <span className="bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">Categories</span>
+            </h2>
+            <div className="w-24 h-1.5 bg-gradient-to-r from-orange-600 to-amber-600 mx-auto rounded-full" />
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+            {cuisineCategories.map((category, index) => (
+              <CategoryCard 
+                key={index} 
+                category={category} 
+                index={index} 
+                onClick={onOrderFoodClick} 
+              />
             ))}
           </div>
         </div>
-      </section> */}
-
-      {/* Cuisine Categories */}
-<section className="py-16 bg-slate-50">
-  <div className="container mx-auto px-4">
-    <div className="text-center mb-12">
-      <h2 className="text-3xl md:text-5xl font-black text-slate-900 mb-4">
-        <span className="bg-gradient-to-r from-orange-600 to-amber-700 bg-clip-text text-transparent">Explore Categories</span>
-      </h2>
-    </div>
-
-    <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-8 gap-3">
-      {cuisineCategories.map((category, index) => (
-        <button
-          key={index}
-          onClick={onOrderFoodClick}
-          className="group relative bg-white rounded-2xl p-4 shadow-sm hover:shadow-xl transition-all duration-500 border border-slate-100 overflow-hidden"
-        >
-          <div className="relative z-10 text-center">
-            <div className="text-2xl md:text-3xl mb-2 group-hover:scale-110 transition-transform duration-300">
-              {category.icon}
-            </div>
-            <h3 className="font-bold text-slate-900 text-[10px] md:text-xs mb-1">
-              {category.name}
-            </h3>
-          </div>
-        </button>
-      ))}
-    </div>
-  </div>
-</section>
-
-      {/* Promotional Offers */}
-    <section className="py-24 bg-[#0a0a0c] relative overflow-hidden">
-      {/* Decorative Background Circles */}
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-orange-600/10 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2" />
-      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-indigo-600/10 blur-[120px] rounded-full translate-y-1/2 -translate-x-1/2" />
-
-      <div className="container mx-auto px-4 relative z-10">
-        <div className="text-center mb-20">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="inline-flex items-center gap-3 bg-white/5 backdrop-blur-xl rounded-full px-6 py-2 border border-white/10 mb-6"
-          >
-            <Sparkles className="h-5 w-5 text-amber-400" />
-            <span className="text-zinc-400 text-sm font-bold tracking-widest uppercase">Limited Time Privileges</span>
-          </motion.div>
-          
-          <h2 className="text-4xl md:text-6xl font-black text-white mb-6 tracking-tight">
-            Curated <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-200">Exclusives</span>
-          </h2>
-          <p className="text-zinc-500 text-lg max-w-2xl mx-auto leading-relaxed">
-            Unlocking premium experiences with special rewards designed for our most valued guests.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-          {promoOffers.map((offer, idx) => (
-            <motion.div
-              key={idx}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: idx * 0.1 }}
-              whileHover={{ y: -10 }}
-              className="group relative"
-            >
-              <div className={`absolute inset-0 ${offer.bgColor} opacity-20 blur-3xl rounded-[40px] group-hover:opacity-40 transition-opacity duration-500`} />
-              
-              <div className="relative h-full bg-zinc-900/40 backdrop-blur-3xl border border-white/10 rounded-[40px] p-10 overflow-hidden flex flex-col items-center text-center">
-                {/* Decorative Pattern */}
-                <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-16 translate-x-16" />
-                
-                <div className="mb-8 relative">
-                   <div className="w-20 h-20 bg-zinc-800 rounded-3xl flex items-center justify-center text-4xl shadow-2xl relative z-10 group-hover:scale-110 transition-transform duration-500">
-                     {offer.icon}
-                   </div>
-                   <motion.div 
-                     animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
-                     transition={{ duration: 3, repeat: Infinity }}
-                     className="absolute inset-0 bg-white/20 blur-xl rounded-full" 
-                   />
-                </div>
-
-                <Badge className="bg-orange-600/20 text-orange-400 border-orange-600/30 font-black px-4 py-1.5 rounded-full text-xs mb-6 tracking-[0.2em]">
-                  {offer.code}
-                </Badge>
-                
-                <h3 className="text-2xl font-black text-white mb-4 group-hover:text-orange-400 transition-colors">
-                  {offer.title}
-                </h3>
-                
-                <p className="text-zinc-400 mb-10 text-sm leading-relaxed">
-                  {offer.description}
-                </p>
-                
-                <div className="mt-auto w-full pt-8 border-t border-white/5 flex flex-col gap-4">
-                  <div className="flex items-center justify-center gap-2 text-zinc-500 text-[10px] font-bold uppercase tracking-widest">
-                    <Clock className="h-3 w-3" />
-                    {offer.expiry}
-                  </div>
-                  
-                  <Button 
-                    onClick={onOrderFoodClick}
-                    className="w-full bg-white hover:bg-orange-600 text-black hover:text-white font-black rounded-2xl py-6 transition-all shadow-xl shadow-black/40"
-                  >
-                    Claim Privilege
-                  </Button>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </section>
-
+      </section>
 
       {/* Upcoming Events */}
       <section className="py-20 bg-gradient-to-br from-slate-50 via-white to-slate-100">
@@ -326,9 +234,6 @@ export function HomePage({
                       <Calendar className="h-4 w-4" />
                       <span className="font-medium">{event.date} • {event.time}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-slate-600">
-                      <span className="font-medium">{event.guests}</span>
-                    </div>
                   </div>
                   
                   <div className="flex items-center justify-between">
@@ -344,75 +249,200 @@ export function HomePage({
               </Card>
             ))}
           </div>
+        </div>
+      </section>
 
-          {/* Mobile View All Button */}
-          <div className="flex justify-center mt-12 md:hidden">
-            <Button 
-              onClick={onExploreEventsClick}
-              className="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white font-bold rounded-xl px-12 py-6 text-lg"
-               style={{padding: '1.5rem 2.5rem'}}
+      {/* Gallery Section */}
+      <GallerySection 
+        galleryImages={liveGallery.length > 0 ? liveGallery : [
+          { id: 1, src: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4', alt: 'Ambiance' },
+          { id: 2, src: 'https://images.unsplash.com/photo-1552566626-52f8b828add9', alt: 'Cuisine' },
+          { id: 3, src: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b', alt: 'Details' },
+          { id: 4, src: 'https://images.unsplash.com/photo-1559339352-11d035aa65de', alt: 'Events' },
+          { id: 5, src: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4', alt: 'Dining' },
+          { id: 6, src: 'https://images.unsplash.com/photo-1552566626-52f8b828add9', alt: 'Dessert' },
+        ]} 
+        onViewGallery={onViewGallery} 
+      />
+
+      {/* Blog Section */}
+      {liveBlogs.length > 0 && (
+        <BlogSection blogPosts={liveBlogs} onPostClick={onBlogClick} />
+      )}
+
+      {/* Promotional Offers - Premium Redesign */}
+      <section className="py-24 bg-[#0a0a0c] relative overflow-hidden">
+        {/* Background Mesh Gradients */}
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-orange-600/10 blur-[130px] rounded-full -translate-y-1/2 translate-x-1/3 animate-pulse" />
+        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-indigo-600/10 blur-[130px] rounded-full translate-y-1/2 -translate-x-1/3 animate-pulse" style={{ animationDelay: '1s' }} />
+
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="text-center mb-20">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="inline-flex items-center gap-3 px-6 py-2 rounded-full bg-white/5 backdrop-blur-2xl border border-white/10 mb-8 shadow-[0_0_20px_rgba(255,255,255,0.05)]"
             >
-              View All Events
-            </Button>
+              <Sparkles className="h-4 w-4 text-amber-400" />
+              <span className="text-zinc-400 text-[10px] font-black tracking-[0.25em] uppercase">Limited Time Privileges</span>
+            </motion.div>
+            
+            <h2 className="text-5xl md:text-7xl font-black text-white mb-6 tracking-tighter">
+              Curated <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-amber-200 to-orange-500">Exclusives</span>
+            </h2>
+            <p className="text-zinc-500 text-lg max-w-2xl mx-auto">Elevate your dining experience with our hand-picked privileges designed for the connoisseur.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {promoOffers.map((offer, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.15 }}
+                className="group relative h-full"
+              >
+                {/* Glow behind card */}
+                <div className="absolute inset-0 bg-gradient-to-br from-orange-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 blur-3xl -z-10" />
+                
+                <div className="h-full bg-gradient-to-b from-zinc-900/50 to-black/80 backdrop-blur-3xl border border-white/5 rounded-[64px] p-10 flex flex-col items-center text-center transition-all duration-500 group-hover:border-orange-500/30 group-hover:translate-y-[-12px]">
+                  {/* Floating Icon Decoration */}
+                  <div className="w-16 h-16 rounded-3xl bg-zinc-800/50 border border-white/10 flex items-center justify-center text-3xl mb-8 group-hover:scale-110 group-hover:rotate-12 transition-all duration-500 shadow-2xl">
+                    {offer.icon}
+                  </div>
+
+                  {/* High-end Coupon Badge */}
+                  <div className="bg-orange-500/10 border border-orange-500/20 px-5 py-1.5 rounded-full mb-6">
+                    <span className="text-orange-400 font-black text-[12px] tracking-[0.3em]">{offer.code}</span>
+                  </div>
+
+                  <h3 className="text-2xl font-black text-white mb-4 tracking-tight leading-tight">
+                    {offer.title}
+                  </h3>
+                  
+                  <p className="text-zinc-400 text-sm leading-relaxed mb-8 font-medium">
+                    {offer.description}
+                  </p>
+                  
+                  <div className="mt-auto w-full pt-6 border-t border-white/5">
+                    <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest mb-6">
+                      {offer.expiry}
+                    </p>
+                    
+                    <button
+                      onClick={onOrderFoodClick}
+                      className="w-full flex items-center justify-center gap-3 bg-white text-black font-black rounded-2xl py-4 transition-all duration-300 group-hover:bg-orange-500 group-hover:text-white group-hover:shadow-[0_12px_30px_rgba(255,90,0,0.4)]"
+                    >
+                      <Sparkles className="w-4 h-4" />
+                      Claim Privilege
+                    </button>
+                  </div>
+
+                  {/* Decorative corner accent */}
+                  <div className="absolute top-8 right-8 w-1 h-12 bg-white/5 rounded-full" />
+                  <div className="absolute top-8 right-8 w-12 h-1 bg-white/5 rounded-full" />
+                </div>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* Final CTA Section */}
       <section className="py-20 bg-gradient-to-br from-orange-500 via-amber-500 to-orange-600 relative overflow-hidden">
-        {/* Background Elements */}
-        <div className="absolute top-0 left-0 w-72 h-72 bg-white/10 rounded-full -translate-x-1/2 -translate-y-1/2"></div>
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-white/10 rounded-full translate-x-1/2 translate-y-1/2"></div>
-        
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="text-center max-w-4xl mx-auto">
-            <h2 className="text-4xl md:text-6xl font-black mb-6">
-              Ready to Experience Excellence?
-            </h2>
-            <p className="text-xl text-white/90 mb-12 leading-relaxed">
-              Join 50,000+ satisfied customers in Raipur who trust Sattvik Kaleva for their food and event needs
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-              <Button 
-                onClick={onOrderFoodClick}
-                size="lg"
-                className="bg-white text-orange-600 hover:bg-slate-100 shadow-2xl hover:shadow-3xl transition-all duration-300 text-xl px-16 py-8 rounded-xl font-bold transform hover:scale-105 border-0"
-              >
-                <Utensils className="mr-3 h-6 w-6" />
-                Order Food Now
-              </Button>
-              <Button 
-                onClick={onExploreEventsClick}
-                size="lg"
-                className="bg-transparent border-2 border-white/50 text-black hover:text-orange-600 backdrop-blur-sm shadow-2xl hover:shadow-3xl transition-all duration-300 text-xl px-16 py-8 rounded-xl font-bold transform hover:scale-105"
-              >
-                <Calendar className="mr-3 h-6 w-6" />
-                Plan Your Event
-              </Button>
-            </div>
-            
-            <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-8 text-white/80">
-              <div className="text-center">
-                <div className="text-3xl font-black mb-2">50K+</div>
-                <div className="text-sm">Happy Customers</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-black mb-2">4.8★</div>
-                <div className="text-sm">Customer Rating</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-black mb-2">15+</div>
-                <div className="text-sm">Cities Served</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-black mb-2">24/7</div>
-                <div className="text-sm">Support</div>
-              </div>
-            </div>
+        <div className="container mx-auto px-4 relative z-10 text-center max-w-4xl mx-auto">
+          <h2 className="text-4xl md:text-6xl font-black mb-6">Ready to Experience Excellence?</h2>
+          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mt-12">
+            <Button 
+              onClick={onOrderFoodClick}
+              size="lg"
+              className="bg-white text-orange-600 hover:bg-slate-100 shadow-2xl text-xl px-16 py-8 rounded-xl font-bold"
+            >
+              Order Food Now
+            </Button>
+            <Button 
+              onClick={onExploreEventsClick}
+              size="lg"
+              className="bg-transparent border-2 border-white/50 text-black hover:text-orange-600 text-xl px-16 py-8 rounded-xl font-bold"
+            >
+              Plan Your Event
+            </Button>
           </div>
         </div>
       </section>
     </div>
+
+  );
+}
+
+function CategoryCard({ category, index, onClick }: { category: any, index: number, onClick: () => void }) {
+  const cardRef = useRef<HTMLDivElement>(null);
+  
+  // Mouse tracking for 3D tilt
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [15, -15]), { stiffness: 300, damping: 30 });
+  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-15, 15]), { stiffness: 300, damping: 30 });
+
+  function handleMouseMove(e: React.MouseEvent) {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    mouseX.set(x);
+    mouseY.set(y);
+  }
+
+  function handleMouseLeave() {
+    mouseX.set(0);
+    mouseY.set(0);
+  }
+
+  return (
+    <motion.div
+      ref={cardRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      onClick={onClick}
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ delay: index * 0.05 }}
+      style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+      className="group relative cursor-pointer"
+    >
+      <div 
+        className="relative bg-white/80 backdrop-blur-xl rounded-3xl p-8 shadow-sm group-hover:shadow-2xl transition-all duration-500 border border-slate-200/50 overflow-hidden h-full flex flex-col items-center justify-center text-center"
+      >
+        {/* Animated background glow */}
+        <div className={`absolute -inset-2 opacity-0 group-hover:opacity-20 transition-opacity duration-700 bg-gradient-to-br ${category.color} blur-2xl rounded-full`} />
+        
+        <div className="relative z-10" style={{ transform: "translateZ(50px)" }}>
+          <div className="text-4xl md:text-5xl mb-4 transform group-hover:scale-125 group-hover:rotate-12 transition-all duration-500 drop-shadow-xl">
+            {category.icon}
+          </div>
+          
+          <h3 className="font-black text-slate-900 text-sm md:text-base mb-2 tracking-tight group-hover:text-orange-600 transition-colors">
+            {category.name}
+          </h3>
+          
+          <div className="flex items-center justify-center gap-1.5 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{category.items} items</span>
+            <div className="w-1 h-1 rounded-full bg-orange-500" />
+            <ChevronRight className="w-3 h-3 text-orange-500" />
+          </div>
+        </div>
+        
+        {/* Decorative elements */}
+        <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-white/10 to-transparent -translate-y-1/2 translate-x-1/2 rounded-full blur-xl" />
+        <div className="absolute bottom-4 left-4 w-12 h-1 gap-1 flex">
+          <div className={`w-1/2 h-full rounded-full bg-gradient-to-r ${category.color} opacity-40`} />
+          <div className="w-2 h-full rounded-full bg-slate-200" />
+        </div>
+      </div>
+    </motion.div>
   );
 }

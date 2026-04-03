@@ -44,16 +44,11 @@ const sidebarItems: SidebarItem[] = [
     label: 'Users', 
     icon: Users, 
     color: 'text-indigo-600', 
-    path: '/admin/users',
-    hasDropdown: true,
-    dropdownItems: [
-      { label: 'All Users', path: '/admin/users', icon: List },
-      { label: 'Add User', path: '/admin/users/add', icon: Plus },
-    ]
+    path: '/admin/users'
   },
   { 
     id: 'foods', 
-    label: 'Foods (Menu)', 
+    label: 'Menu', 
     icon: Coffee, 
     color: 'text-green-600', 
     path: '/admin/menu',
@@ -158,7 +153,7 @@ const sidebarItems: SidebarItem[] = [
     id: 'blog', 
     label: 'Blog Posts', 
     icon: BookOpen, 
-    color: 'text-pink-100', // Adjusted to match premium feel
+    color: 'text-pink-600', // Premium Pink
     path: '/admin/blog',
     hasDropdown: true,
     dropdownItems: [
@@ -235,12 +230,11 @@ export default function Sidebar({ sidebarOpen, onToggleSidebar }: SidebarProps) 
       <motion.aside
         initial={false}
         animate={{ width: sidebarWidth }}
-        transition={{ duration: 0.3, ease: "easeInOut" }}
-        className="fixed left-0 top-0 h-screen z-50 bg-white shadow-lg border-r overflow-y-auto overflow-x-hidden custom-scrollbar"
+        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        className="fixed inset-y-0 left-0 z-50 bg-white shadow-xl shadow-gray-200/50 border-r border-gray-100 flex flex-col overflow-hidden"
       >
-        <div className="flex flex-col min-h-full">
-          {/* Sidebar Header */}
-          <div className="p-4 border-b border-gray-200 flex items-center justify-between min-h-[80px]">
+        {/* Sidebar Header */}
+        <div className="p-4 border-b border-gray-200 flex items-center justify-between min-h-[80px] shrink-0">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center flex-shrink-0">
                 <Coffee className="h-6 w-6 text-white" />
@@ -273,11 +267,11 @@ export default function Sidebar({ sidebarOpen, onToggleSidebar }: SidebarProps) 
             )}
           </div>
 
-          {/* Navigation */}
-          <nav className="p-4 space-y-1 flex-1 overflow-y-auto">
+          {/* Navigation Area */}
+          <nav className="flex-1 min-h-0 overflow-y-auto p-4 space-y-1 custom-scrollbar">
             {sidebarItems.map((item) => {
               const Icon = item.icon;
-              const isActive = pathname === item.path || pathname.startsWith(item.path + '/');
+              const isActive = (pathname || '') === item.path || (pathname || '').startsWith(item.path + '/');
               const showLabels = sidebarOpen || isMobile;
               const isDropdownOpen = openDropdown === item.id;
               
@@ -301,7 +295,7 @@ export default function Sidebar({ sidebarOpen, onToggleSidebar }: SidebarProps) 
                           {!showLabels && isActive && (
                             <motion.div
                               layoutId="activeDot"
-                              className="absolute -top-1 -right-1 w-2 h-2 bg-orange-500 rounded-full"
+                              className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-orange-500 rounded-full border-2 border-white"
                             />
                           )}
                         </div>
@@ -340,7 +334,7 @@ export default function Sidebar({ sidebarOpen, onToggleSidebar }: SidebarProps) 
                             animate={{ opacity: 1, height: 'auto' }}
                             exit={{ opacity: 0, height: 0 }}
                             transition={{ duration: 0.2 }}
-                            className="ml-4 pl-4 border-l-2 border-gray-200 space-y-1 mt-1"
+                            className="ml-5 pl-4 border-l-2 border-gray-100 space-y-1 mt-1 pb-2"
                           >
                             {item.dropdownItems.map((dropdownItem, index) => {
                               const DropdownIcon = dropdownItem.icon;
@@ -356,10 +350,10 @@ export default function Sidebar({ sidebarOpen, onToggleSidebar }: SidebarProps) 
                                     initial={{ opacity: 0, x: -10 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: index * 0.05 }}
-                                    className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-sm transition-all duration-200 cursor-pointer ${
+                                    className={`flex items-center space-x-2 px-3 py-2.5 rounded-lg text-sm transition-all duration-200 cursor-pointer ${
                                       isDropdownActive
-                                        ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                                        ? 'bg-blue-50/80 text-blue-700 font-semibold border border-blue-100'
+                                        : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
                                     }`}
                                     whileHover={{ scale: 1.01 }}
                                   >
@@ -436,7 +430,7 @@ export default function Sidebar({ sidebarOpen, onToggleSidebar }: SidebarProps) 
           </nav>
 
           {/* Sidebar Footer */}
-          <div className="p-4 border-t border-gray-200">
+          <div className="p-4 border-t border-gray-200 shrink-0">
             <AnimatePresence>
               {(sidebarOpen || isMobile) && (
                 <motion.div
@@ -455,7 +449,6 @@ export default function Sidebar({ sidebarOpen, onToggleSidebar }: SidebarProps) 
               )}
             </AnimatePresence>
           </div>
-        </div>
       </motion.aside>
 
       {/* Mobile Overlay */}

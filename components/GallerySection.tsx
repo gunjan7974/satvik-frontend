@@ -24,20 +24,18 @@ export function GallerySection({ galleryImages, onViewGallery }: GallerySectionP
         </div>
 
         {/* Gallery Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-8">
           {featuredImages.map((image, index) => (
             <div
               key={image.id}
-              className={`relative overflow-hidden rounded-lg shadow-lg cursor-pointer transform transition-transform duration-200 hover:scale-105 ${
-                index === 0 ? 'md:col-span-2 md:row-span-2' : ''
-              }`}
+              className="relative overflow-hidden rounded-xl shadow-md cursor-pointer group"
               onClick={onViewGallery}
             >
-              <div className={`aspect-square ${index === 0 ? 'md:aspect-[2/2]' : ''}`}>
+              <div className="aspect-square">
                 <img
                   src={image.src}
                   alt={image.alt}
-                  className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                 />
               </div>
               <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-30 transition-opacity duration-200 flex items-end">

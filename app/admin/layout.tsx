@@ -49,26 +49,39 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     setSidebarOpen(!sidebarOpen);
   };
 
-  // Calculate main content margin to avoid overlap with fixed sidebar
-  const mainContentMargin = isMobile 
-    ? 'ml-0' 
-    : (sidebarOpen ? 'md:ml-72' : 'md:ml-20');
-
+  // Remove mainContentMargin, using flex spacer instead
   if (loading || !user || user.role !== 'admin') {
-    return <div>Loading...</div>; // Or a proper loading spinner component
+    return (
+      <div className="h-screen w-full flex flex-col items-center justify-center bg-gray-50">
+        <div className="relative">
+          <div className="h-16 w-16 border-4 border-orange-200 border-t-orange-600 rounded-full animate-spin"></div>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="h-2 w-2 bg-orange-600 rounded-full animate-pulse"></div>
+          </div>
+        </div>
+        <p className="mt-4 text-gray-600 font-medium animate-pulse uppercase tracking-widest text-xs">Preparing Admin Workspace</p>
+      </div>
+    );
   }
 
   return (
-    <div className="h-screen w-full bg-gray-50 flex overflow-hidden">
+    <div className="fixed inset-0 bg-gray-50 flex overflow-hidden">
       {/* Sidebar - fixed internally (fixed left-0 top-0 h-screen z-50 overflow-y-auto) */}
       <Sidebar 
         sidebarOpen={sidebarOpen}
         onToggleSidebar={handleToggleSidebar}
       />
 
-      {/* Main Container - flex column with margin-left to avoid overlap */}
+      {/* Spacer to push main content on desktop, since sidebar is fixed */}
+      {!isMobile && (
+        <div 
+          className={`flex-shrink-0 transition-all duration-300 ${sidebarOpen ? 'w-72' : 'w-20'}`} 
+        />
+      )}
+
+      {/* Main Container */}
       <div 
-        className={`flex-1 flex flex-col h-full bg-white transition-all duration-300 ${mainContentMargin} overflow-hidden font-sans`}
+        className="flex-1 flex flex-col h-full bg-white overflow-hidden font-sans relative"
       >
         <Header 
           user={user}
@@ -80,13 +93,13 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         />
 
         {/* Independent Content Scroll Zone */}
-        <main className="flex-1 overflow-y-auto custom-scrollbar scroll-smooth bg-gray-50/50">
-          <div className="p-4 md:p-8 min-h-full">
+        <main className="flex-1 overflow-y-auto scroll-smooth bg-gray-50/50">
+          <div className="p-4 md:p-8 min-h-full flex flex-col">
             <div className="flex-1">
               {children}
             </div>
             
-            <div className="mt-20">
+            <div className="mt-12 pt-8">
               <Footer />
             </div>
           </div>

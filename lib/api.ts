@@ -514,7 +514,33 @@ class ApiClient {
     return response;
   }
 
-  async updateProfile(profileData: Partial<User>): Promise<{ success: boolean; user: User }> {
+  async updateProfile(profileData: FormData | Partial<User>): Promise<{ success: boolean; user: User }> {
+    if (profileData instanceof FormData) {
+      const url = `${this.baseUrl}/auth/profile`;
+      const token = this.getAuthToken();
+      const headers: any = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const res = await fetch(url, {
+        method: 'PUT',
+        body: profileData,
+        headers
+      });
+
+      if (res.status === 401) {
+        authToken.remove();
+        throw new Error('Authentication failed. Please login again.');
+      }
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Failed to update profile');
+      
+      if (data.success) {
+        authToken.setUserData(data.user);
+      }
+      return data;
+    }
+
     const response = await this.request<{ success: boolean; user: User }>('/auth/profile', {
       method: 'PUT',
       body: JSON.stringify(profileData),
@@ -1086,28 +1112,28 @@ class ApiClient {
 
   async adminGetAllUsers(params?: PaginationParams & { role?: string; isActive?: boolean }) {
     const queryString = this.buildQueryString(params);
-    return this.request<ApiResponse<User[]>>(`/admin/users${queryString}`);
+    return this.request<ApiResponse<User[]>>(`/users${queryString}`);
   }
 
   async adminGetUserById(userId: string) {
-    return this.request<ApiResponse<User>>(`/admin/users/${userId}`);
+    return this.request<ApiResponse<User>>(`/users/${userId}`);
   }
 
   async adminUpdateUserRole(userId: string, role: 'user' | 'admin' | 'vendor') {
-    return this.request<ApiResponse<User>>(`/admin/users/${userId}/role`, {
+    return this.request<ApiResponse<User>>(`/users/${userId}/role`, {
       method: 'PUT',
       body: JSON.stringify({ role }),
     });
   }
 
   async adminToggleUserStatus(userId: string) {
-    return this.request<ApiResponse<User>>(`/admin/users/${userId}/status`, {
+    return this.request<ApiResponse<User>>(`/users/${userId}/status`, {
       method: 'PUT',
     });
   }
 
   async adminDeleteUser(userId: string) {
-    return this.request<ApiResponse>(`/admin/users/${userId}`, {
+    return this.request<ApiResponse>(`/users/${userId}`, {
       method: 'DELETE',
     });
   }
