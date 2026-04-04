@@ -29,8 +29,10 @@ export default function MyOrdersPage() {
     try {
       setLoading(true);
       const response = await apiClient.getOrders();
-      if (response.success && response.data) {
-        setOrders(response.data);
+      // Handle both formats: response.data or response.orders
+      const orderList = response.data || (response as any).orders;
+      if (response.success && orderList) {
+        setOrders(orderList);
       }
     } catch (error) {
       console.error("Failed to load orders:", error);
@@ -74,83 +76,96 @@ export default function MyOrdersPage() {
       <div className="max-w-5xl mx-auto px-6 mt-12">
         <AnimatePresence mode="popLayout">
           {orders.length > 0 ? (
-            <div className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {orders.map((order, index) => (
                 <motion.div
                   key={order._id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
+                  className="h-full"
                 >
-                  <Card className="rounded-[2rem] border-0 shadow-xl shadow-gray-200/50 overflow-hidden hover:shadow-2xl hover:shadow-gray-200 transition-all duration-500 group">
-                    <CardContent className="p-0">
-                       <div className="flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-gray-50">
+                  <div className="relative h-full flex flex-col rounded-[3rem] border border-white/60 bg-white shadow-xl shadow-gray-200/30 overflow-hidden hover:shadow-2xl hover:shadow-orange-200/30 transition-all duration-500 group">
+                    
+                    {/* Premium Abstract Backgrounds */}
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-orange-100/50 to-transparent rounded-full blur-3xl pointer-events-none group-hover:scale-110 group-hover:from-orange-200/50 transition-all duration-700"></div>
+                    <div className="absolute bottom-0 left-0 w-40 h-40 bg-gradient-to-tr from-amber-100/40 to-transparent rounded-full blur-2xl pointer-events-none"></div>
+
+                    <div className="p-0 relative z-10 flex-grow flex flex-col">
+                       <div className="flex flex-col flex-grow divide-y divide-orange-900/5 h-full">
                           {/* Main Info */}
-                          <div className="flex-1 p-8">
-                             <div className="flex justify-between items-start mb-6">
+                          <div className="flex-1 p-6 flex flex-col">
+                             <div className="flex flex-wrap justify-between items-start gap-4 mb-5">
                                 <div>
-                                   <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Order #{order.orderNumber}</p>
-                                   <div className="flex items-center gap-3">
-                                      <h3 className="text-xl font-black text-gray-900 tracking-tight">Sattvik Meal Case</h3>
-                                      <Badge variant="outline" className={`px-4 py-1.5 rounded-full font-bold uppercase text-[10px] ${
-                                        order.status === 'delivered' ? 'bg-green-50 text-green-600 border-green-200' :
-                                        order.status === 'cancelled' ? 'bg-red-50 text-red-600 border-red-200' :
-                                        'bg-orange-50 text-orange-600 border-orange-200 animate-pulse'
+                                   <div className="flex items-center gap-2 mb-1.5">
+                                      <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse"></span>
+                                      <p className="text-[10px] font-black text-orange-500/80 uppercase tracking-widest">Order #{order.orderNumber || order._id?.substring(0, 6)}</p>
+                                   </div>
+                                   <div className="flex flex-wrap items-center gap-3">
+                                      <h3 className="text-xl font-black text-gray-900 tracking-tight">Sattvik Order</h3>
+                                      <Badge variant="outline" className={`px-3 py-1 rounded-full font-bold uppercase text-[10px] backdrop-blur-md shadow-sm border-0 ${
+                                        order.status?.toLowerCase() === 'delivered' ? 'bg-green-500/10 text-green-700' :
+                                        order.status?.toLowerCase() === 'cancelled' ? 'bg-red-500/10 text-red-700' :
+                                        'bg-orange-500/10 text-orange-700'
                                       }`}>
                                         {order.status}
                                       </Badge>
                                    </div>
                                 </div>
                                 <div className="text-right">
-                                   <p className="text-2xl font-black text-gray-900">₹{order.total}</p>
-                                   <p className="text-xs font-bold text-gray-400">{new Date(order.createdAt!).toLocaleDateString()}</p>
+                                   <p className="text-2xl font-black text-gray-900 bg-clip-text text-transparent bg-gradient-to-br from-gray-900 to-gray-600">₹{order.totalPrice || order.total}</p>
+                                   <p className="text-xs font-bold text-gray-400 mt-0.5">{new Date(order.createdAt!).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
                                 </div>
                              </div>
                              
-                             <div className="flex flex-wrap gap-2 mb-6">
-                                {order.items.slice(0, 3).map((item, i) => (
-                                   <span key={i} className="text-xs font-bold text-gray-400 bg-gray-50 px-3 py-1 rounded-full border border-gray-100">
-                                      {item.quantity}x {item.title}
+                              <div className="flex flex-wrap gap-2.5 mb-6 flex-grow">
+                                {((order.orderItems || order.items || []) as any[]).slice(0, 4).map((item: any, i: number) => (
+                                   <span key={i} className="text-xs font-bold text-gray-600 bg-gray-50/80 shadow-[inset_0_1px_3px_rgba(0,0,0,0.05)] px-4 py-1.5 rounded-full border border-gray-100 backdrop-blur-md">
+                                      <span className="text-orange-600 mr-1.5">{item.quantity}x</span> {item.title || item.food?.name}
                                    </span>
                                 ))}
-                                {order.items.length > 3 && (
-                                   <span className="text-xs font-bold text-orange-600 bg-orange-50 px-3 py-1 rounded-full border border-orange-100">
-                                      +{order.items.length - 3} more
+                                {((order.orderItems || order.items || []) as any[]).length > 4 && (
+                                   <span className="text-xs font-bold text-orange-700 bg-orange-50/80 shadow-sm px-4 py-1.5 rounded-full border border-orange-100 backdrop-blur-md">
+                                      +{((order.orderItems || order.items || []) as any[]).length - 4} more
                                    </span>
                                 )}
                              </div>
 
-                             <div className="flex items-center gap-6 pt-6 border-t border-gray-50">
-                                <Link href="#" className="flex items-center gap-2 text-gray-400 hover:text-orange-600 font-bold text-xs uppercase tracking-widest transition-colors">
-                                   <MessageSquare className="w-4 h-4" /> Need Help?
+                             <div className="flex items-center gap-6 pt-5 border-t border-gray-200/30">
+                                <Link href="#" className="group/link flex items-center gap-2 text-gray-400 hover:text-orange-600 font-bold text-[11px] uppercase tracking-widest transition-colors">
+                                   <MessageSquare className="w-4 h-4 group-hover/link:scale-110 transition-transform" /> Need Help?
                                 </Link>
-                                <Link href="#" className="flex items-center gap-2 text-gray-400 hover:text-orange-600 font-bold text-xs uppercase tracking-widest transition-colors">
-                                   <AlertCircle className="w-4 h-4" /> Report Issue
+                                <Link href="#" className="group/link flex items-center gap-2 text-gray-400 hover:text-orange-600 font-bold text-[11px] uppercase tracking-widest transition-colors">
+                                   <AlertCircle className="w-4 h-4 group-hover/link:scale-110 transition-transform" /> Report Issue
                                 </Link>
                              </div>
                           </div>
 
                           {/* Action Side */}
-                          <div className="bg-gray-50/50 p-8 flex flex-col justify-center gap-3 md:w-64">
+                          <div className="bg-orange-50/30 px-6 pb-6 pt-4 flex flex-col sm:flex-row items-center gap-4 relative overflow-hidden mt-auto">
+                             {/* Decorative subtle texture */}
+                             <div className="absolute inset-0 opacity-[0.03] bg-[radial-gradient(#000_1px,transparent_1px)] [background-size:16px_16px]"></div>
+                             
                              <Button 
-                                className="w-full bg-gray-900 hover:bg-orange-600 text-white rounded-2xl py-7 font-black uppercase tracking-widest shadow-xl transition-all"
+                                className="relative w-full sm:flex-1 bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 text-white rounded-full py-6 font-black text-[11px] uppercase tracking-widest shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 transition-all border border-orange-400/20 overflow-hidden"
                                 onClick={() => {
                                    localStorage.setItem('completedOrder', JSON.stringify(order));
                                    router.push('/cart/checkout/confirmation/success/tracking');
                                 }}
                              >
+                                <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></span>
                                 TRACK ORDER
                              </Button>
                              <Button 
                                 variant="outline" 
-                                className="w-full border-gray-200 text-gray-700 hover:bg-white rounded-2xl py-7 font-black uppercase tracking-widest bg-transparent"
+                                className="w-full sm:flex-[0.7] border-gray-200/80 bg-white/60 backdrop-blur-md text-gray-700 hover:bg-white hover:border-gray-300 rounded-full py-6 font-black text-[11px] uppercase tracking-widest transition-all shadow-sm relative z-10"
                              >
                                 ORDER DETAILS
                              </Button>
                           </div>
                        </div>
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </div>
                 </motion.div>
               ))}
             </div>

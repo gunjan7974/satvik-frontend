@@ -1,5 +1,5 @@
 "use client";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Input } from './ui/input';
@@ -20,6 +20,16 @@ export function LoginPage({ onGoBack, onLoginSuccess }: LoginPageProps) {
   const [activeTab, setActiveTab] = useState('login');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+
+  // Handle session expired redirect
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('error') === 'session_expired') {
+        setError('Your session has expired for security reasons. Please login again.');
+      }
+    }
+  }, []);
 
   const [loginForm, setLoginForm] = useState({
     email: '',

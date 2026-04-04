@@ -234,11 +234,20 @@ export function Menu({
   const [dietFilter, setDietFilter] = useState<"veg" | "nonveg" | null>(null);
   const [showLoginAlert, setShowLoginAlert] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [showCartPopup, setShowCartPopup] = useState(false);
+  const [lastAddedItem, setLastAddedItem] = useState<MenuItem | null>(null);
 
   const categories = ["All", "Breakfast", "Main Course", "Dal", "Chinese", "Rice", "Starters", "Tandoor", "Breads", "Thali", "Combos", "Beverages", "Desserts"];
 
   const handleAddToCart = (itemId: string) => {
     onAddToCart(itemId);
+    const item = menuItems.find(i => i.id.toString() === itemId);
+    if (item) {
+      setLastAddedItem(item);
+      setShowCartPopup(true);
+      // Auto-dismiss after 4 seconds
+      setTimeout(() => setShowCartPopup(false), 4000);
+    }
   };
 
   const filteredItems = useMemo(() => {
@@ -314,13 +323,22 @@ export function Menu({
               {categories.map((category) => (
                 <Button
                   key={category}
-                  variant={selectedCategory === category ? "default" : "outline"}
                   size="sm"
                   onClick={() => setSelectedCategory(category)}
-                  className={`rounded-full whitespace-nowrap transition-all duration-200 ${selectedCategory === category
-                      ? "bg-gradient-to-r from-orange-600 to-red-600 shadow-md"
-                      : "hover:border-orange-300"
-                    }`}
+                  style={{
+                    background: selectedCategory === category 
+                      ? 'linear-gradient(135deg, #ff7a18 0%, #ff3d00 100%)' 
+                      : 'transparent',
+                    color: selectedCategory === category ? '#fff' : '#4a4a4a',
+                    border: selectedCategory === category ? 'none' : '1px solid #e0e0e0',
+                    borderRadius: '999px',
+                    padding: '8px 16px',
+                    fontWeight: 600,
+                    fontSize: '13px',
+                    transition: 'all 0.2s ease',
+                    boxShadow: selectedCategory === category ? '0 4px 12px rgba(255, 90, 0, 0.2)' : 'none',
+                  }}
+                  className="whitespace-nowrap"
                 >
                   {category}
                 </Button>
@@ -544,66 +562,33 @@ export function Menu({
                           {/^[0-9a-fA-F]{24}$/.test(item.category) ? 'Specials' : (item.category || 'Specials')}
                         </div>
 
-                        {/* Add to Cart / Stepper */}
-                        <div className="mt-auto">
-                          {cartQuantity > 0 ? (
-                            <div
-                              className="flex items-center justify-between rounded-2xl p-1"
-                              style={{
-                                background: '#fff5f0',
-                                border: '1px solid #ffe0d0',
-                              }}
-                            >
-                              <button
-                                onClick={() => onRemoveFromCart(item.id.toString())}
-                                className="w-8 h-8 rounded-xl flex items-center justify-center transition-colors"
-                                style={{ color: '#ff5a1f' }}
-                                onMouseEnter={e => (e.currentTarget.style.background = '#ffe5d5')}
-                                onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-                              >
-                                <Minus className="h-3.5 w-3.5" />
-                              </button>
-                              <span style={{ fontWeight: 800, fontSize: '13px', color: '#cc3d00' }}>{cartQuantity}</span>
-                              <button
-                                onClick={() => handleAddToCart(item.id.toString())}
-                                className="w-8 h-8 rounded-xl flex items-center justify-center transition-colors"
-                                style={{ color: '#ff5a1f' }}
-                                onMouseEnter={e => (e.currentTarget.style.background = '#ffe5d5')}
-                                onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-                              >
-                                <Plus className="h-3.5 w-3.5" />
-                              </button>
-                            </div>
-                          ) : (
-                            <button
-                              onClick={() => handleAddToCart(item.id.toString())}
-                              className="w-full flex items-center justify-center gap-1.5 transition-all duration-200 active:scale-95"
-                              style={{
-                                background: 'linear-gradient(135deg, #ff7a18 0%, #ff3d00 100%)',
-                                color: '#fff',
-                                fontSize: '13px',
-                                fontWeight: 600,
-                                borderRadius: '999px',
-                                padding: '8px 0',
-                                border: 'none',
-                                boxShadow: '0 6px 18px rgba(255, 90, 0, 0.28)',
-                                letterSpacing: '0.2px',
-                              }}
-                              onMouseEnter={(e) => {
-                                (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(135deg, #ff8c30 0%, #ff4d1a 100%)';
-                                (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 8px 22px rgba(255, 90, 0, 0.40)';
-                                (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1.015)';
-                              }}
-                              onMouseLeave={(e) => {
-                                (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(135deg, #ff7a18 0%, #ff3d00 100%)';
-                                (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 6px 18px rgba(255, 90, 0, 0.28)';
-                                (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)';
-                              }}
-                            >
-                              <Plus className="h-3.5 w-3.5" />
-                              Add to Cart
-                            </button>
-                          )}
+                        {/* Add to Cart — always the same button, never changes */}
+                        <div className="mt-auto" style={{ height: '40px' }}>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                              handleAddToCart(item.id.toString());
+                            }}
+                            className="w-full flex items-center justify-center gap-1.5"
+                            style={{
+                              background: 'linear-gradient(135deg, #ff7a18 0%, #ff3d00 100%)',
+                              color: '#fff',
+                              fontSize: '13px',
+                              fontWeight: 600,
+                              borderRadius: '999px',
+                              height: '40px',
+                              border: 'none',
+                              boxShadow: '0 6px 18px rgba(255, 90, 0, 0.28)',
+                              letterSpacing: '0.2px',
+                              cursor: 'pointer',
+                              outline: 'none',
+                            }}
+                          >
+                            <Plus className="h-3.5 w-3.5 stroke-[2.5]" />
+                            Add to Cart
+                          </button>
                         </div>
 
                       </div>
@@ -634,44 +619,7 @@ export function Menu({
           </motion.div>
         )}
 
-        {/* Cart Summary - Floating Bar */}
-        <AnimatePresence>
-          {cartItemCount > 0 && (
-            <motion.div
-              initial={{ y: 100, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 100, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:bottom-4 md:w-96 z-50"
-            >
-              <Card className="shadow-2xl border-0 bg-white/95 backdrop-blur-md rounded-2xl overflow-hidden">
-                <div className="p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <div className="bg-orange-100 p-2 rounded-full">
-                        <ShoppingCart className="h-4 w-4 text-orange-600" />
-                      </div>
-                      <div>
-                        <p className="font-bold text-gray-800">
-                          {cartItemCount} {cartItemCount === 1 ? "item" : "items"}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-bold text-lg text-orange-600">₹{Math.round(cartTotal)}</p>
-                    </div>
-                  </div>
-                  <Button
-                    className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 rounded-full py-5"
-                    onClick={onViewCart}
-                  >
-                    View Cart & Checkout
-                  </Button>
-                </div>
-              </Card>
-            </motion.div>
-          )}
-        </AnimatePresence>
+
       </div>
 
       {/* Features Footer */}
@@ -710,6 +658,142 @@ export function Menu({
           © 2024 Sattvik Kaleva · Pure Veg · Veggy and Choisy · Made with ♥ for Food lovers
         </div>
       </div>
+      {/* Add to Cart Popup - Centered Modal */}
+      <AnimatePresence>
+        {showCartPopup && lastAddedItem && (
+          <div style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 999999, /* Extremely high z-index to stay on top */
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '16px'
+          }}>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowCartPopup(false)}
+              style={{
+                position: 'absolute',
+                inset: 0,
+                background: 'rgba(0,0,0,0.6)',
+                backdropFilter: 'blur(5px)',
+                cursor: 'pointer'
+              }}
+            />
+
+            {/* Centered Modal Content */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.8, y: 20 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+              style={{
+                position: 'relative',
+                width: '100%',
+                maxWidth: '400px',
+                zIndex: 1000000,
+                pointerEvents: 'auto'
+              }}
+            >
+              <div
+                style={{
+                  background: '#fff',
+                  borderRadius: '24px',
+                  boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+                  border: '1px solid #ffe5cc',
+                  overflow: 'hidden',
+                }}
+              >
+                {/* Visual Header */}
+                <div style={{ height: '6px', background: 'linear-gradient(90deg, #ff7a18, #ff3d00)' }} />
+
+                <div style={{ padding: '24px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                      <div
+                        style={{
+                          background: 'linear-gradient(135deg, #ff7a18, #ff3d00)',
+                          borderRadius: '50%',
+                          width: '44px',
+                          height: '44px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          boxShadow: '0 8px 16px rgba(255, 90, 0, 0.3)',
+                        }}
+                      >
+                        <ShoppingCart className="h-5 w-5 text-white" />
+                      </div>
+                      <div>
+                        <h4 style={{ fontSize: '18px', fontWeight: 800, color: '#111', margin: 0 }}>Item Added!</h4>
+                        <p style={{ fontSize: '13px', color: '#666', margin: 0, marginTop: '2px' }}>{lastAddedItem.name}</p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setShowCartPopup(false)}
+                      style={{
+                        background: '#f8f8f8',
+                        border: 'none',
+                        cursor: 'pointer',
+                        color: '#999',
+                        padding: '8px',
+                        borderRadius: '50%',
+                        transition: 'all 0.2s',
+                        display: 'flex',
+                        alignItems: 'center'
+                      }}
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '12px' }}>
+                    <button
+                      onClick={() => setShowCartPopup(false)}
+                      style={{
+                        flex: 1,
+                        padding: '14px 0',
+                        borderRadius: '999px',
+                        border: '2px solid #ff7a18',
+                        background: '#fff',
+                        color: '#ff5a1f',
+                        fontWeight: 700,
+                        fontSize: '14px',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      Continue Shopping
+                    </button>
+                    <button
+                      onClick={() => { setShowCartPopup(false); onViewCart(); }}
+                      style={{
+                        flex: 1,
+                        padding: '14px 0',
+                        borderRadius: '999px',
+                        border: 'none',
+                        background: 'linear-gradient(135deg, #ff7a18 0%, #ff3d00 100%)',
+                        color: '#fff',
+                        fontWeight: 700,
+                        fontSize: '14px',
+                        cursor: 'pointer',
+                        boxShadow: '0 10px 20px -5px rgba(255, 90, 0, 0.4)',
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      View Cart
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }

@@ -69,9 +69,9 @@ export default function OrdersPage() {
       if (isRefresh) setRefreshing(true);
       else setLoading(true);
 
-      const response = await apiClient.getOrders();
-      if (response.success && response.orders) {
-        setOrders(response.orders);
+      const response = await apiClient.getOrders({ allOrders: true });
+      if (response.success && response.data) {
+        setOrders(response.data);
       }
     } catch (error) {
       console.error("Failed to load orders", error);

@@ -50,11 +50,9 @@ export default function MenuPage() {
 
   const handleAddToCart = async (id: any) => {
     await addToCart(id);
-    router.push("/cart");
   };
 
   const handleRemoveFromCart = async (id: any) => {
-    if (!isAuthenticated) return;
     const currentQuantity = cart[id] || 0;
     await updateQuantity(id, currentQuantity - 1);
   };

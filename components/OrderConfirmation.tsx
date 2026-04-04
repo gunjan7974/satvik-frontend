@@ -11,7 +11,7 @@ interface OrderConfirmationProps {
 }
 
 export function OrderConfirmation({ orderData, onGoHome, onTrackOrder }: OrderConfirmationProps) {
-  const orderId = `SK${Date.now().toString().slice(-6)}`;
+  const orderId = orderData.orderNumber || orderData._id || `SK${Date.now().toString().slice(-6)}`;
   const estimatedTime = orderData.deliveryType === "delivery" ? "30-45" : "20-30";
   
   return (

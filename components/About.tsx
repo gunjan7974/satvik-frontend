@@ -69,13 +69,19 @@ export function About() {
             return (
               <div
                 key={index}
-                className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow text-center"
+                className="bg-white rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-500 text-center border border-slate-100 group"
               >
-                <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div 
+                  className="w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-6 transform group-hover:rotate-12 transition-transform duration-500 shadow-lg"
+                  style={{ 
+                    background: "linear-gradient(135deg, #f97316 0%, #ed64a6 100%)",
+                    backgroundColor: "#f97316" /* Solid fallback */
+                  }}
+                >
                   <Icon className="h-8 w-8 text-white" />
                 </div>
-                <h4 className="mb-2">{feature.title}</h4>
-                <p className="text-gray-600 text-sm leading-relaxed">
+                <h4 className="text-xl font-bold text-slate-900 mb-3 group-hover:text-orange-600 transition-colors">{feature.title}</h4>
+                <p className="text-gray-600 text-sm leading-relaxed font-medium">
                   {feature.description}
                 </p>
               </div>

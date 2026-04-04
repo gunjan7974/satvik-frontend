@@ -261,35 +261,7 @@ export function RestaurantListing({
         )}
       </div>
 
-      {/* Floating Cart Button */}
-      <AnimatePresence>
-        {cartItemCount > 0 && (
-          <motion.div
-            initial={{ y: 100 }}
-            animate={{ y: 0 }}
-            exit={{ y: 100 }}
-            className="fixed bottom-20 md:bottom-6 left-4 right-4 z-50"
-          >
-            <div className="max-w-4xl mx-auto">
-              <button
-                onClick={onViewCart}
-                className="w-full bg-teal-600 text-white rounded-xl shadow-xl p-4 flex items-center justify-between hover:bg-teal-700 transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="bg-white/20 rounded-lg px-3 py-1">
-                    <span>{cartItemCount} {cartItemCount === 1 ? 'item' : 'items'}</span>
-                  </div>
-                  <span>View Cart</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span>₹{cartTotal.toFixed(2)}</span>
-                  <ChevronLeft className="w-5 h-5 rotate-180" />
-                </div>
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+
     </div>
   );
 }

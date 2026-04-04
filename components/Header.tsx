@@ -356,23 +356,6 @@ export function Header({
         </AnimatePresence>
       </div>
 
-      {/* Desktop Persistent Floating Cart */}
-      {totalItems > 0 && (
-        <div className="hidden lg:block fixed top-24 right-6 z-40">
-          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}>
-            <Button
-              onClick={onViewCart}
-              className="bg-orange-600 hover:bg-orange-700 shadow-xl shadow-orange-600/20 relative text-white font-bold h-12 px-6"
-            >
-              <ShoppingCart className="h-5 w-5 mr-2" />
-              View Cart
-              <Badge className="absolute -top-2 -right-2 bg-red-600 text-white px-2 py-1 text-xs min-w-[24px] h-[24px] flex items-center justify-center rounded-full border-2 border-white">
-                {totalItems}
-              </Badge>
-            </Button>
-          </motion.div>
-        </div>
-      )}
     </header>
   );
 }

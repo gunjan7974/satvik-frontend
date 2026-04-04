@@ -12,6 +12,10 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
+import { apiClient, Order } from "../../lib/api";
+import { Loader2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 // ─── Floating Orb Background ───────────────────────────────────────────────
 function FloatingOrbs() {
@@ -311,6 +315,8 @@ export default function ProfilePage() {
 
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [isLoadingOrders, setIsLoadingOrders] = useState(false);
 
   const resolveAvatarUrl = (avatarPath: string | undefined) => {
     if (!avatarPath) return null;
@@ -354,7 +360,26 @@ export default function ProfilePage() {
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+    if (isAuthenticated) {
+      fetchOrders();
+    }
+  }, [isAuthenticated]);
+
+  const fetchOrders = async () => {
+    try {
+      setIsLoadingOrders(true);
+      const response = await apiClient.getOrders();
+      // Handle both formats: response.data or response.orders
+      const orderList = response.data || (response as any).orders;
+      if (response.success && orderList) {
+        setOrders(orderList);
+      }
+    } catch (error) {
+      console.error("Failed to fetch orders:", error);
+    } finally {
+      setIsLoadingOrders(false);
+    }
+  };
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
@@ -399,7 +424,7 @@ export default function ProfilePage() {
   ];
 
   const stats = [
-    { icon: Package, label: "Total Orders", value: "24", color: "bg-orange-100 text-orange-600", delay: 0.1 },
+    { icon: Package, label: "Total Orders", value: orders.length.toString(), color: "bg-orange-100 text-orange-600", delay: 0.1 },
     { icon: Star, label: "Reviews Given", value: "12", color: "bg-amber-100 text-amber-600", delay: 0.2 },
     { icon: CalendarCheck, label: "Event Bookings", value: "3", color: "bg-indigo-100 text-indigo-600", delay: 0.3 },
     { icon: Heart, label: "Favourites", value: "8", color: "bg-rose-100 text-rose-600", delay: 0.4 },
@@ -548,10 +573,21 @@ export default function ProfilePage() {
                   initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }}
                   whileHover={{ scale: 1.05 }}
                   transition={{ delay: 0.4, type: "spring", bounce: 0.5 }}
-                  className="flex items-center gap-1.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-1.5 rounded-full text-[10px] md:text-xs font-black shadow-lg shadow-green-100 uppercase tracking-widest"
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-full shadow-lg shadow-green-100/50 backdrop-blur-md transition-all border border-white/40"
+                  style={{ 
+                    background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+                    color: "white", 
+                    fontSize: "11px", 
+                    fontWeight: "800",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.1em",
+                    boxShadow: "0 10px 25px -5px rgba(16, 185, 129, 0.4)"
+                  }}
                 >
-                  <CheckCircle className="w-3 h-3" />
-                  Verified
+                  <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center shadow-inner">
+                    <CheckCircle className="w-3 h-3 text-white" />
+                  </div>
+                  <span>Verified User</span>
                 </motion.div>
               </div>
               
@@ -579,12 +615,35 @@ export default function ProfilePage() {
               className="flex-shrink-0 mt-4 md:mt-0"
             >
               <motion.button
-                whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+                whileHover={{ scale: 1.04, y: -2 }}
+                whileTap={{ scale: 0.96 }}
                 onClick={() => setShowEditModal(true)}
-                className="flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-orange-500 to-orange-600 text-white font-black shadow-xl shadow-orange-200/50 transition-all border border-orange-400/50"
+                className="relative flex items-center gap-2.5 overflow-hidden group"
+                style={{ 
+                  background: "linear-gradient(145deg, #ff8c38 0%, #f97316 40%, #ea580c 100%)",
+                  color: "white",
+                  fontWeight: "700",
+                  fontSize: "14px",
+                  letterSpacing: "0.025em",
+                  borderRadius: "14px",
+                  padding: "12px 24px",
+                  border: "1px solid rgba(255,255,255,0.25)",
+                  boxShadow: "0 4px 15px -3px rgba(234, 88, 12, 0.5), inset 0 1px 0 rgba(255,255,255,0.25)",
+                  cursor: "pointer"
+                }}
               >
-                <Edit2 className="w-4 h-4" />
-                <span>Edit Profile</span>
+                {/* Inner top highlight */}
+                <div style={{
+                  position: 'absolute', top: 0, left: 0, right: 0, height: '50%',
+                  background: 'linear-gradient(to bottom, rgba(255,255,255,0.15), transparent)',
+                  borderRadius: '14px 14px 0 0', pointerEvents: 'none'
+                }} />
+                {/* Hover sweep shine */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent opacity-0 group-hover:opacity-100 -translate-x-full group-hover:translate-x-full transition-all duration-700 ease-in-out" />
+                
+                <Edit2 className="w-3.5 h-3.5 relative z-10" style={{ opacity: 0.95 }} />
+                <span className="relative z-10">Edit Profile</span>
+                <Sparkles className="w-3 h-3 relative z-10 opacity-75" />
               </motion.button>
             </motion.div>
           </div>
@@ -700,28 +759,106 @@ export default function ProfilePage() {
           {activeTab === "orders" && (
             <motion.div
               key="orders"
-              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.4 }}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="space-y-4"
             >
-              <div className="bg-white/70 backdrop-blur-xl border border-white/80 rounded-3xl shadow-xl shadow-orange-100/20 p-8 text-center">
-                <motion.div
-                  animate={{ y: [0, -8, 0] }}
-                  transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                  className="w-20 h-20 rounded-full bg-orange-100 flex items-center justify-center mx-auto mb-6"
-                >
-                  <Package className="w-9 h-9 text-orange-500" />
-                </motion.div>
-                <h3 className="text-2xl font-black text-gray-900 mb-2">No Orders Yet</h3>
-                <p className="text-gray-400 mb-8 max-w-sm mx-auto">Your order history will appear here. Start exploring our delicious menu!</p>
-                <motion.button
-                  whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-                  onClick={() => router.push("/menu")}
-                  className="px-8 py-3.5 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold shadow-lg shadow-orange-200"
-                >
-                  Browse Menu
-                </motion.button>
-              </div>
+              {isLoadingOrders ? (
+                <div className="bg-white/70 backdrop-blur-xl border border-white/80 rounded-3xl p-12 text-center">
+                  <Loader2 className="w-10 h-10 animate-spin text-orange-600 mx-auto mb-4" />
+                  <p className="text-gray-500 font-bold uppercase tracking-widest text-xs">Loading orders...</p>
+                </div>
+              ) : orders.length > 0 ? (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+                  {orders.map((order, idx) => (
+                    <motion.div
+                      key={order._id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: idx * 0.05 }}
+                      className="h-full"
+                    >
+                      <div className="h-full flex flex-col justify-between group relative bg-white/40 backdrop-blur-2xl border border-white/60 rounded-[3rem] p-5 shadow-xl shadow-gray-200/30 hover:shadow-2xl hover:shadow-orange-200/30 transition-all duration-500 overflow-hidden">
+                        {/* Premium Abstract Backgrounds */}
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-orange-100/50 to-transparent rounded-full blur-2xl pointer-events-none group-hover:scale-110 group-hover:from-orange-200/50 transition-all duration-700"></div>
+                        
+                        <div className="relative z-10 flex-grow flex flex-col gap-4">
+                          <div className="flex items-start gap-3">
+                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-inner mt-1 ${
+                              order.status?.toLowerCase() === 'delivered' ? 'bg-gradient-to-br from-green-100 to-green-50 text-green-600 border border-green-200' :
+                              order.status?.toLowerCase() === 'cancelled' ? 'bg-gradient-to-br from-red-100 to-red-50 text-red-600 border border-red-200' :
+                              'bg-gradient-to-br from-orange-100 to-amber-50 text-orange-600 border border-orange-200'
+                            }`}>
+                              <Package className="w-6 h-6" />
+                            </div>
+                            <div className="flex-grow">
+                              <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
+                                 <div className="flex items-center gap-1.5">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse"></span>
+                                    <p className="text-[9px] font-black text-orange-500/80 uppercase tracking-widest">Order #{order.orderNumber || order._id?.substring(0, 6)}</p>
+                                 </div>
+                                 <Badge className={`px-2.5 py-0.5 rounded-full text-[8px] uppercase font-black border-0 backdrop-blur-md shadow-sm ${
+                                   order.status?.toLowerCase() === 'delivered' ? 'bg-green-500/10 text-green-700' :
+                                   order.status?.toLowerCase() === 'cancelled' ? 'bg-red-500/10 text-red-700' :
+                                   'bg-orange-500/10 text-orange-700'
+                                 }`}>
+                                   {order.status}
+                                 </Badge>
+                              </div>
+                              <h4 className="text-lg font-black text-gray-900 leading-tight mb-2 tracking-tight">Sattvik Order</h4>
+                              
+                              <div className="flex flex-wrap gap-1.5 mb-2">
+                                  {((order.orderItems || order.items || []) as any[]).slice(0, 3).map((item: any, i: number) => (
+                                     <span key={i} className="text-[10px] font-bold text-gray-600 bg-white/60 shadow-sm px-2.5 py-1 rounded-full border border-white/80 backdrop-blur-md">
+                                        <span className="text-orange-600 mr-1">{item.quantity}x</span> {item.title || item.food?.name}
+                                     </span>
+                                  ))}
+                              </div>
+                            </div>
+                          </div>
+  
+                          <div className="flex items-center justify-between gap-5 mt-auto pt-4 border-t border-orange-900/5">
+                            <div>
+                              <p className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-br from-gray-900 to-gray-600 leading-none mb-1.5">₹{order.totalPrice || order.total}</p>
+                              <p className="text-[10px] font-bold text-gray-400">{new Date(order.createdAt!).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
+                            </div>
+                            
+                            <Button 
+                              className="relative overflow-hidden bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 text-white rounded-full font-black text-[10px] uppercase tracking-widest px-8 py-4 shadow-md hover:shadow-lg hover:shadow-orange-500/30 transition-all border border-orange-400/20"
+                              onClick={() => {
+                                localStorage.setItem('completedOrder', JSON.stringify(order));
+                                router.push('/cart/checkout/confirmation/success/tracking');
+                              }}
+                            >
+                              <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></span>
+                              Track
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              ) : (
+                <div className="bg-white/70 backdrop-blur-xl border border-white/80 rounded-3xl shadow-xl shadow-orange-100/20 p-12 text-center">
+                  <motion.div
+                    animate={{ y: [0, -8, 0] }}
+                    transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                    className="w-20 h-20 rounded-full bg-orange-100 flex items-center justify-center mx-auto mb-6"
+                  >
+                    <Package className="w-9 h-9 text-orange-500" />
+                  </motion.div>
+                  <h3 className="text-2xl font-black text-gray-900 mb-2">No Orders Yet</h3>
+                  <p className="text-gray-400 mb-8 max-w-sm mx-auto">Your order history will appear here. Start exploring our delicious menu!</p>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+                    onClick={() => router.push("/menu")}
+                    className="px-8 py-3.5 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold shadow-lg shadow-orange-200"
+                  >
+                    Browse Menu
+                  </motion.button>
+                </div>
+              )}
             </motion.div>
           )}
 

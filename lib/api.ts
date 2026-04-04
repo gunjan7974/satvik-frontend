@@ -9,6 +9,7 @@ export interface User {
   name: string;
   email: string;
   role: 'user' | 'admin' | 'vendor';
+  phone?: string;
   avatar?: string;
   isActive?: boolean;
   vendorInfo?: {
@@ -102,7 +103,18 @@ export interface Order {
     subtotal: number;
     _id?: string;
   }>;
+  orderItems?: Array<{
+    food?: {
+      _id: string;
+      name: string;
+      price: number;
+      image?: string;
+    };
+    quantity: number;
+    _id?: string;
+  }>;
   total: number;
+  totalPrice?: number;
   totalAmount?: number;
   status: string;
   specialInstructions?: string;
@@ -428,6 +440,11 @@ class ApiClient {
       // Handle unauthorized or forbidden responses
       if (response.status === 401 || response.status === 403) {
         authToken.remove();
+        if (typeof window !== 'undefined') {
+          // If session expires, redirect to login with the current path as redirect param
+          const currentPath = window.location.pathname;
+          window.location.href = `/login?redirect=${encodeURIComponent(currentPath)}&error=session_expired`;
+        }
         throw new Error('Session expired');
       }
 
@@ -950,9 +967,13 @@ class ApiClient {
     vendorId?: string;
     startDate?: string;
     endDate?: string;
+    allOrders?: boolean; // New flag to clarify admin access
   }) {
-    const queryString = this.buildQueryString(params);
-    return this.request<ApiResponse<Order[]>>(`/orders${queryString}`);
+    const { allOrders, ...rest } = params || {};
+    const queryString = this.buildQueryString(rest);
+    // If allOrders is true, hit the base endpoint (requires admin), otherwise hit /my
+    const endpoint = allOrders ? `/orders${queryString}` : `/orders/my${queryString}`;
+    return this.request<ApiResponse<Order[]>>(endpoint);
   }
 
   async getOrderById(id: string) {
