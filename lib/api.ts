@@ -754,6 +754,13 @@ class ApiClient {
     });
   }
 
+  async uploadFoodsXML(formData: FormData) {
+    return this.request<ApiResponse>('/foods/upload-xml', {
+      method: 'POST',
+      body: formData,
+    });
+  }
+
 
 
   // ==================== CATEGORY APIs ====================
@@ -904,6 +911,13 @@ class ApiClient {
   async toggleCategoryStatus(id: string) {
     return this.request<ApiResponse<Category>>(`/categories/${id}/status`, {
       method: 'PATCH',
+    });
+  }
+
+  async uploadCategoriesXML(formData: FormData) {
+    return this.request<ApiResponse>('/categories/upload-xml', {
+      method: 'POST',
+      body: formData,
     });
   }
 

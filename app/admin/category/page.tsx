@@ -76,6 +76,30 @@ export default function CategoriesPage() {
     }
   };
 
+  const handleXMLUpload = async (file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      setIsLoading(true);
+      const response = await apiClient.uploadCategoriesXML(formData);
+      if (response.success) {
+        alert("Categories uploaded successfully!");
+        loadCategories(); // Refresh the list
+      } else {
+        alert(response.message || "Failed to upload XML");
+      }
+    } catch (error) {
+      console.error("Failed to upload XML", error);
+      alert("Error uploading XML file.");
+    } finally {
+      setIsLoading(false);
+      // Reset input
+      const input = document.getElementById('category-xml-upload') as HTMLInputElement;
+      if (input) input.value = '';
+    }
+  };
+
   const handleDelete = async (category: Category) => {
     if (window.confirm(`Are you sure you want to delete the category "${category.title}"? This action cannot be undone.`)) {
       try {
@@ -147,10 +171,30 @@ export default function CategoriesPage() {
           <h1 className="text-2xl font-bold text-gray-900">Category Management</h1>
           <p className="text-gray-600 mt-1">Organize your menu with categories</p>
         </div>
-        <Button onClick={handleAddCategory} className="bg-orange-600 hover:bg-orange-700 flex items-center gap-2">
-          <Plus className="h-4 w-4" />
-          Add Category
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <input
+            type="file"
+            id="category-xml-upload"
+            accept=".xml"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) handleXMLUpload(file);
+            }}
+          />
+          <Button 
+            onClick={() => document.getElementById('category-xml-upload')?.click()}
+            variant="outline" 
+            className="border-orange-600 text-orange-600 hover:bg-orange-50 flex items-center gap-2"
+          >
+            <Download className="h-4 w-4" />
+            Upload XML
+          </Button>
+          <Button onClick={handleAddCategory} className="bg-orange-600 hover:bg-orange-700 flex items-center gap-2">
+            <Plus className="h-4 w-4" />
+            Add Category
+          </Button>
+        </div>
       </div>
 
       {/* Stats */}

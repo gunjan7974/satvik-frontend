@@ -111,6 +111,31 @@ export default function AdminMenusDashboard() {
     }
   };
 
+  const handleXMLUpload = async (file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      setLoading(true);
+      const response = await apiClient.uploadFoodsXML(formData);
+      if (response.success) {
+        alert("Menu items uploaded successfully!");
+        loadMenus(); // Refresh the list
+        loadCategories(); // Refresh categories just in case
+      } else {
+        alert(response.message || "Failed to upload XML");
+      }
+    } catch (error) {
+      console.error("Failed to upload XML", error);
+      alert("Error uploading XML file.");
+    } finally {
+      setLoading(false);
+      // Reset input
+      const input = document.getElementById('menu-xml-upload') as HTMLInputElement;
+      if (input) input.value = '';
+    }
+  };
+
   const handleDelete = async (menuId: string) => {
     if (!confirm("Are you sure you want to delete this menu item?")) {
       return;
@@ -266,13 +291,33 @@ export default function AdminMenusDashboard() {
           <h1 className="text-2xl font-bold text-gray-900">Menu Management</h1>
           <p className="text-gray-600 mt-1">Manage your restaurant menu items</p>
         </div>
-        <Button 
-          onClick={() => router.push("/admin/menu/add")}
-          className="bg-orange-600 hover:bg-orange-700 flex items-center gap-2"
-        >
-          <Plus className="h-4 w-4" />
-          Add Menu Item
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <input
+            type="file"
+            id="menu-xml-upload"
+            accept=".xml"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) handleXMLUpload(file);
+            }}
+          />
+          <Button 
+            onClick={() => document.getElementById('menu-xml-upload')?.click()}
+            variant="outline" 
+            className="border-orange-600 text-orange-600 hover:bg-orange-50 flex items-center gap-2"
+          >
+            <Download className="h-4 w-4" />
+            Upload XML
+          </Button>
+          <Button 
+            onClick={() => router.push("/admin/menu/add")}
+            className="bg-orange-600 hover:bg-orange-700 flex items-center gap-2"
+          >
+            <Plus className="h-4 w-4" />
+            Add Menu Item
+          </Button>
+        </div>
       </div>
 
       {/* Stats */}
